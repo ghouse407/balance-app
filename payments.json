@@ -1,0 +1,62 @@
+[
+  {
+    "name": "BNS MTGE DEPT",
+    "amount": 1891.66,
+    "last_dates": ["2026-05-25", "2026-06-08"],
+    "interval_days": 14
+  },
+  {
+    "name": "2600812RBC PYT",
+    "amount": 6606.41,
+    "last_dates": ["2026-05-05", "2026-06-03"],
+    "interval_days": 29
+  },
+  {
+    "name": "Insurance",
+    "amount": 287.72,
+    "last_dates": ["2026-05-25", "2026-06-08"],
+    "interval_days": 14
+  },
+  {
+    "name": "Hydro One",
+    "amount": 80.56,
+    "last_dates": ["2026-04-01", "2026-05-04"],
+    "interval_days": 30
+  },
+  {
+    "name": "Enbridge Gas",
+    "amount": 120.00,
+    "last_dates": ["2026-04-15", "2026-05-15"],
+    "interval_days": 30
+  },
+  {
+    "name": "Water Bill",
+    "amount": 60.00,
+    "last_dates": ["2026-03-10", "2026-05-10"],
+    "interval_days": 61
+  },
+  {
+    "name": "Property Tax",
+    "amount": 900.00,
+    "last_dates": ["2026-03-06", "2026-05-07"],
+    "interval_days": 62
+  },
+  {
+    "name": "Weekly Transfers",
+    "amount": 190.00,
+    "last_dates": ["2026-06-19", "2026-06-26"],
+    "interval_days": 7
+  },
+  {
+    "name": "P2P 400",
+    "amount": 400.00,
+    "last_dates": ["2026-05-01", "2026-06-01"],
+    "interval_days": 31
+  },
+  {
+    "name": "BNS PREAUTH PMT",
+    "amount": 382.56,
+    "last_dates": ["2026-05-03", "2026-06-03"],
+    "interval_days": 31
+  }
+]
