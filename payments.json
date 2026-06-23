@@ -3,100 +3,212 @@
     {
       "name": "Scotia Mortgage",
       "amount": 1891.66,
-      "frequency": "bi-weekly",
-      "lastDate": "2026-05-25",
-      "nextDate": "2026-06-08",
       "category": "Mortgage",
-      "notes": "Formerly BNS MTGE DEPT"
+      "history": [
+        "2025-12-08",
+        "2025-12-22",
+        "2026-01-05",
+        "2026-01-19",
+        "2026-02-02",
+        "2026-02-16",
+        "2026-03-02",
+        "2026-03-16",
+        "2026-03-30",
+        "2026-04-13",
+        "2026-05-11",
+        "2026-05-25"
+      ]
     },
     {
       "name": "RBC Mortgage",
       "amount": 6606.41,
-      "frequency": "monthly",
-      "lastDate": "2026-05-05",
-      "nextDate": "2026-06-05",
       "category": "Mortgage",
-      "notes": "Formerly RBC PYT"
+      "history": [
+        "2025-12-03",
+        "2026-01-05",
+        "2026-02-03",
+        "2026-03-03",
+        "2026-04-06",
+        "2026-05-05"
+      ]
     },
     {
       "name": "Hydro One",
       "amount": 80.56,
-      "frequency": "monthly",
-      "lastDate": "2026-05-04",
-      "nextDate": "2026-06-04",
-      "category": "Utilities"
+      "category": "Utilities",
+      "history": [
+        "2025-12-02",
+        "2025-12-30",
+        "2026-01-02",
+        "2026-02-02",
+        "2026-03-02",
+        "2026-04-01",
+        "2026-05-04"
+      ]
     },
     {
       "name": "Enbridge Gas",
       "amount": 111.95,
-      "frequency": "monthly",
-      "lastDate": "2026-05-25",
-      "nextDate": "2026-06-25",
-      "category": "Utilities"
+      "category": "Utilities",
+      "history": [
+        "2025-12-24",
+        "2026-01-26",
+        "2026-02-24",
+        "2026-03-24",
+        "2026-04-27",
+        "2026-05-25"
+      ]
     },
     {
       "name": "Scotia Home & Auto Insurance",
       "amount": 196.83,
-      "frequency": "monthly",
-      "lastDate": "2026-05-07",
-      "nextDate": "2026-06-07",
-      "category": "Insurance"
+      "category": "Insurance",
+      "history": [
+        "2025-12-08",
+        "2026-01-07",
+        "2026-02-09",
+        "2026-03-09",
+        "2026-04-07",
+        "2026-05-07"
+      ]
     },
     {
       "name": "Scotia Home & Auto Insurance",
       "amount": 90.89,
-      "frequency": "monthly",
-      "lastDate": "2026-05-07",
-      "nextDate": "2026-06-07",
-      "category": "Insurance"
+      "category": "Insurance",
+      "history": [
+        "2025-12-08",
+        "2026-01-07",
+        "2026-02-09",
+        "2026-03-09",
+        "2026-04-07",
+        "2026-05-07"
+      ]
     },
     {
       "name": "Bradford Property Tax",
       "amount": 1895.40,
-      "frequency": "quarterly",
-      "lastDate": "2026-05-07",
-      "nextDate": "2026-08-07",
-      "category": "Property Tax"
+      "category": "Property Tax",
+      "history": [
+        "2026-03-06",
+        "2026-05-07"
+      ]
     },
     {
       "name": "Milton Property Tax",
       "amount": 1214.51,
-      "frequency": "semi-annual",
-      "lastDate": "2026-03-06",
-      "nextDate": "2026-09-06",
-      "category": "Property Tax"
+      "category": "Property Tax",
+      "history": [
+        "2026-03-06"
+      ]
     },
     {
       "name": "RRSP",
       "amount": 65,
-      "frequency": "weekly",
-      "lastDate": "2026-05-28",
-      "nextDate": "2026-06-04",
-      "category": "Savings Transfer"
+      "category": "Savings Transfer",
+      "history": [
+        "2025-12-04",
+        "2025-12-11",
+        "2025-12-18",
+        "2025-12-25",
+        "2026-01-01",
+        "2026-01-08",
+        "2026-01-15",
+        "2026-01-22",
+        "2026-01-29",
+        "2026-02-05",
+        "2026-02-12",
+        "2026-02-19",
+        "2026-02-26",
+        "2026-03-05",
+        "2026-03-12",
+        "2026-03-19",
+        "2026-03-26",
+        "2026-04-02",
+        "2026-04-09",
+        "2026-04-16",
+        "2026-04-23",
+        "2026-04-30",
+        "2026-05-07",
+        "2026-05-14",
+        "2026-05-21",
+        "2026-05-28"
+      ]
     },
     {
       "name": "TFSA",
       "amount": 100,
-      "frequency": "weekly",
-      "lastDate": "2026-05-28",
-      "nextDate": "2026-06-04",
-      "category": "Savings Transfer"
+      "category": "Savings Transfer",
+      "history": [
+        "2025-12-04",
+        "2025-12-11",
+        "2025-12-18",
+        "2025-12-25",
+        "2026-01-01",
+        "2026-01-08",
+        "2026-01-15",
+        "2026-01-22",
+        "2026-01-29",
+        "2026-02-05",
+        "2026-02-12",
+        "2026-02-19",
+        "2026-02-26",
+        "2026-03-05",
+        "2026-03-12",
+        "2026-03-19",
+        "2026-03-26",
+        "2026-04-02",
+        "2026-04-09",
+        "2026-04-16",
+        "2026-04-23",
+        "2026-04-30",
+        "2026-05-07",
+        "2026-05-14",
+        "2026-05-21",
+        "2026-05-28"
+      ]
     },
     {
       "name": "Crypto",
       "amount": 25,
-      "frequency": "weekly",
-      "lastDate": "2026-05-28",
-      "nextDate": "2026-06-04",
-      "category": "Investment Transfer"
+      "category": "Investment Transfer",
+      "history": [
+        "2025-12-04",
+        "2025-12-11",
+        "2025-12-18",
+        "2025-12-25",
+        "2026-01-01",
+        "2026-01-08",
+        "2026-01-15",
+        "2026-01-22",
+        "2026-01-29",
+        "2026-02-05",
+        "2026-02-12",
+        "2026-02-19",
+        "2026-02-26",
+        "2026-03-05",
+        "2026-03-12",
+        "2026-03-19",
+        "2026-03-26",
+        "2026-04-02",
+        "2026-04-09",
+        "2026-04-16",
+        "2026-04-23",
+        "2026-04-30",
+        "2026-05-07",
+        "2026-05-14",
+        "2026-05-21",
+        "2026-05-28"
+      ]
     },
     {
       "name": "Shakira TFSA/RRSP",
       "amount": 400,
-      "frequency": "monthly",
-      "lastDate": "2026-05-23",
-      "nextDate": "2026-06-23",
-      "category": "Transfer"
+      "category": "Transfer",
+      "history": [
+        "2026-03-01",
+        "2026-05-23"
+      ]
     }
   ]
 }
