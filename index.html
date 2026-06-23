@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Minimum Balance App</title>
+  <title>Maintain Balance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
@@ -21,24 +21,42 @@
       padding: 20px;
       background: #ffffff;
       min-height: 100vh;
+      position: relative;
+    }
+
+    /* SETTINGS ICON */
+    .settings-icon {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-size: 1.6rem;
+    }
+
+    .settings-icon a {
+      color: inherit;
+      text-decoration: none;
     }
 
     h1 {
       font-size: 1.4rem;
+      margin-top: 40px;
       margin-bottom: 8px;
+      text-align: center;
     }
 
     .balance {
-      font-size: 2.2rem;
-      font-weight: 600;
-      margin: 12px 0 4px;
-      color: #007aff;
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin: 20px 0 10px;
+      color: #000000; /* white in dark mode */
+      text-align: center;
     }
 
     .date {
       font-size: 0.9rem;
       color: #666;
       margin-bottom: 16px;
+      text-align: center;
     }
 
     .section-title {
@@ -66,22 +84,6 @@
     .amount {
       float: right;
       font-weight: 600;
-    }
-
-    .admin-link {
-      margin-top: 24px;
-      font-size: 0.85rem;
-      color: #888;
-      text-align: right;
-    }
-
-    .admin-link a {
-      color: #888;
-      text-decoration: none;
-    }
-
-    .admin-link a:hover {
-      text-decoration: underline;
     }
 
     /* Admin panel */
@@ -141,7 +143,7 @@
       }
 
       .balance {
-        color: #4da6ff;
+        color: #ffffff; /* white in dark mode */
       }
 
       .date {
@@ -151,10 +153,6 @@
       ul li {
         border-bottom: 1px solid #333;
         color: #e6e6e6;
-      }
-
-      .admin-link a {
-        color: #999;
       }
 
       pre {
@@ -174,55 +172,4 @@
       }
 
       input[type="file"] {
-        color: #ddd;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-
-    <!-- MAIN VIEW -->
-    <div id="main-view">
-      <h1>Minimum Balance Required Today</h1>
-      <div class="balance" id="balance-amount">$0.00</div>
-      <div class="date" id="today-date"></div>
-
-      <div class="section-title">Payments Due in Next 4 Days</div>
-      <ul id="upcoming-list">
-        <li>No payments detected in the next 4 days.</li>
-      </ul>
-
-      <div class="admin-link">
-        <a href="#admin">Admin panel</a>
-      </div>
-    </div>
-
-    <!-- ADMIN VIEW -->
-    <div id="admin-view" class="admin-panel">
-      <h1>Admin Panel</h1>
-
-      <div class="admin-section-title">1. Upload Last 6 Months CSV</div>
-      <input type="file" id="csv-input" accept=".csv" />
-      <button id="process-csv-btn">Process CSV & Rebuild Backend</button>
-
-      <div class="admin-section-title">2. Backend Controls</div>
-      <button id="export-backend-btn">Export Backend (JSON)</button>
-      <button id="reset-backend-btn">Reset Backend (Clear Local)</button>
-
-      <div class="admin-section-title">3. Detected Recurring Payments</div>
-      <pre id="backend-preview">No backend loaded yet.</pre>
-
-      <div class="admin-link">
-        <a href="#">Back to main screen</a>
-      </div>
-    </div>
-
-  </div>
-
-  <script src="app.js"></script>
-</body>
-</html>
-
-
+        color
