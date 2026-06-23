@@ -47,23 +47,27 @@
     .balance {
       font-size: 3rem;
       font-weight: 700;
-      margin: 6px 0 0; /* removed spacing below */
+      margin: 6px 0 0;
       color: #000000;
       text-align: center;
     }
 
-    /* REMOVE DATE LABEL COMPLETELY */
+    /* DATE — keep visible, remove label */
     .date {
-      display: none;
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 4px;
+      margin-bottom: 16px;
+      text-align: center;
     }
 
-    /* SEPARATOR LINE */
+    /* SEPARATOR LINE — thinner + longer */
     .separator-line {
-      width: 180px;
-      height: 2px;
-      background: #222; /* dark line for light mode */
-      margin: 12px auto 24px; /* spacing above and below */
-      border-radius: 2px;
+      width: 240px;        /* longer */
+      height: 1px;         /* thinner */
+      background: #222;    /* dark line for light mode */
+      margin: 8px auto 24px;
+      border-radius: 1px;
     }
 
     .section-title {
@@ -154,6 +158,10 @@
         color: #ffffff;
       }
 
+      .date {
+        color: #bbbbbb;
+      }
+
       .separator-line {
         background: #ffffff; /* white line in dark mode */
       }
@@ -198,6 +206,9 @@
     <div id="main-view">
       <h1>Maintain Balance</h1>
       <div class="balance" id="balance-amount">$0.00</div>
+
+      <!-- DATE (no label, just the date) -->
+      <div class="date" id="today-date"></div>
 
       <!-- SEPARATOR LINE -->
       <div class="separator-line"></div>
