@@ -148,7 +148,7 @@ function renderMainScreen(backend) {
   const todayISO = toISODateString(today);
 
   document.getElementById("today-date").textContent =
-    "Today: " + today.toLocaleDateString();
+    today.toLocaleDateString();
 
   // Auto-advance backend based on today
   const advancedBackend = autoAdvanceBackend(backend, todayISO);
