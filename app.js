@@ -87,3 +87,52 @@ function updateTodayDate() {
 
 function renderUpcoming(payments) {
   const list = document.getElementById("upcoming-list");
+  list.innerHTML = "";
+
+  payments.sort((a, b) => new Date(a.nextDate) - new Date(b.nextDate));
+
+  let found = false;
+
+  payments.forEach(p => {
+    const days = daysBetween(p.nextDate);
+
+    if (days >= 0 && days <= 4) {
+      found = true;
+
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <span class="name">${p.name}</span>
+        <span class="amount">$${p.amount.toFixed(2)}</span>
+        <br>
+        <span style="font-size:0.8rem;color:#777;">${formatDate(p.nextDate)}</span>
+      `;
+      list.appendChild(li);
+    }
+  });
+
+  if (!found) {
+    list.innerHTML = `<li>No payments detected in the next 4 days.</li>`;
+  }
+}
+
+// =========================
+// MAIN INIT
+// =========================
+
+async function init() {
+  updateTodayDate();
+
+  let payments = await loadBackend();
+
+  payments = payments.map(p => {
+    const next = predictNextDate(p.history || [p.lastDate]);
+    return {
+      ...p,
+      nextDate: next || p.nextDate
+    };
+  });
+
+  renderUpcoming(payments);
+}
+
+init();
