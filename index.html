@@ -40,29 +40,37 @@
     h1 {
       font-size: 1.4rem;
       margin-top: 40px;
-      margin-bottom: 4px; /* tighter spacing */
+      margin-bottom: 4px;
       text-align: center;
     }
 
     .balance {
-      font-size: 3rem;       /* bigger amount */
+      font-size: 3rem;
       font-weight: 700;
-      margin: 6px 0 10px;    /* reduced top spacing */
+      margin: 6px 0 0; /* removed spacing below */
       color: #000000;
       text-align: center;
     }
 
+    /* REMOVE DATE LABEL COMPLETELY */
     .date {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 32px;   /* extra spacing before payments section */
-      text-align: center;
+      display: none;
+    }
+
+    /* SEPARATOR LINE */
+    .separator-line {
+      width: 180px;
+      height: 2px;
+      background: #222; /* dark line for light mode */
+      margin: 12px auto 24px; /* spacing above and below */
+      border-radius: 2px;
     }
 
     .section-title {
       font-size: 1rem;
       font-weight: 600;
-      margin: 16px 0 8px;
+      margin: 0 0 8px;
+      text-align: left;
     }
 
     ul {
@@ -127,7 +135,7 @@
       overflow-x: auto;
     }
 
-    /* ===== DARK MODE — SAFE VERSION ===== */
+    /* ===== DARK MODE ===== */
     @media (prefers-color-scheme: dark) {
       body {
         background: #0d0d0d;
@@ -143,12 +151,11 @@
       }
 
       .balance {
-        color: #ffffff; /* white in dark mode */
+        color: #ffffff;
       }
 
-      .date {
-        color: #bbbbbb;
-        margin-bottom: 32px; /* match spacing */
+      .separator-line {
+        background: #ffffff; /* white line in dark mode */
       }
 
       ul li {
@@ -191,7 +198,9 @@
     <div id="main-view">
       <h1>Maintain Balance</h1>
       <div class="balance" id="balance-amount">$0.00</div>
-      <div class="date" id="today-date"></div>
+
+      <!-- SEPARATOR LINE -->
+      <div class="separator-line"></div>
 
       <div class="section-title">Payments Due in Next 4 Days</div>
       <ul id="upcoming-list">
@@ -224,4 +233,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
