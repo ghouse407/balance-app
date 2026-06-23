@@ -6,18 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
-    /* ===== BASE LIGHT THEME (DEFAULT) ===== */
+    /* ===== BASE LIGHT THEME ===== */
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 0;
-      padding: 16px;
+      padding: 0;
       background: #f5f5f5;
       color: #222;
     }
 
     .container {
-      max-width: 600px;
+      max-width: 650px;
       margin: 0 auto;
+      padding: 20px;
+      background: #ffffff;
+      min-height: 100vh;
     }
 
     h1 {
@@ -51,7 +54,7 @@
     }
 
     li {
-      padding: 6px 0;
+      padding: 10px 0;
       border-bottom: 1px solid #ddd;
       font-size: 0.95rem;
     }
@@ -103,7 +106,7 @@
     button {
       padding: 8px 12px;
       margin: 4px 4px 4px 0;
-      border-radius: 4px;
+      border-radius: 6px;
       border: 1px solid #ccc;
       background: #fff;
       cursor: pointer;
@@ -122,11 +125,15 @@
       overflow-x: auto;
     }
 
-    /* ===== DARK MODE — FOLLOWS iPHONE SETTINGS ===== */
+    /* ===== DARK MODE — SAFE VERSION ===== */
     @media (prefers-color-scheme: dark) {
       body {
         background: #0d0d0d;
         color: #f2f2f2;
+      }
+
+      .container {
+        background: #111;
       }
 
       h1, .section-title, .admin-section-title {
@@ -146,4 +153,74 @@
         color: #e6e6e6;
       }
 
-      .admin-link
+      .admin-link a {
+        color: #999;
+      }
+
+      pre {
+        background: #1a1a1a;
+        color: #e6e6e6;
+        border: 1px solid #333;
+      }
+
+      button {
+        background: #1a1a1a;
+        color: #f2f2f2;
+        border: 1px solid #444;
+      }
+
+      button:hover {
+        background: #333;
+      }
+
+      input[type="file"] {
+        color: #ddd;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- MAIN VIEW -->
+    <div id="main-view">
+      <h1>Minimum Balance Required Today</h1>
+      <div class="balance" id="balance-amount">$0.00</div>
+      <div class="date" id="today-date"></div>
+
+      <div class="section-title">Payments Due in Next 4 Days</div>
+      <ul id="upcoming-list">
+        <li>No payments detected in the next 4 days.</li>
+      </ul>
+
+      <div class="admin-link">
+        <a href="#admin">Admin panel</a>
+      </div>
+    </div>
+
+    <!-- ADMIN VIEW -->
+    <div id="admin-view" class="admin-panel">
+      <h1>Admin Panel</h1>
+
+      <div class="admin-section-title">1. Upload Last 6 Months CSV</div>
+      <input type="file" id="csv-input" accept=".csv" />
+      <button id="process-csv-btn">Process CSV & Rebuild Backend</button>
+
+      <div class="admin-section-title">2. Backend Controls</div>
+      <button id="export-backend-btn">Export Backend (JSON)</button>
+      <button id="reset-backend-btn">Reset Backend (Clear Local)</button>
+
+      <div class="admin-section-title">3. Detected Recurring Payments</div>
+      <pre id="backend-preview">No backend loaded yet.</pre>
+
+      <div class="admin-link">
+        <a href="#">Back to main screen</a>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
