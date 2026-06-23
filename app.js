@@ -1,358 +1,153 @@
-// ===== CONFIG =====
-const LOCAL_STORAGE_KEY = "balanceAppBackend";
+// =========================
+// Load backend JSON
+// =========================
 
-// ===== UTILITIES =====
-function formatCurrency(amount) {
-  return "$" + amount.toFixed(2);
-}
-
-function parseISODate(str) {
-  return new Date(str + "T00:00:00");
-}
-
-function toISODateString(date) {
-  return date.toISOString().slice(0, 10);
-}
-
-function addDays(date, days) {
-  const d = new Date(date);
-  d.setDate(d.getDate() + days);
-  return d;
-}
-
-function daysBetween(a, b) {
-  const ms = parseISODate(b) - parseISODate(a);
-  return Math.round(ms / (1000 * 60 * 60 * 24));
-}
-
-function median(values) {
-  if (!values.length) return null;
-  const sorted = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  if (sorted.length % 2 === 0) {
-    return (sorted[mid - 1] + sorted[mid]) / 2;
-  }
-  return sorted[mid];
-}
-
-// ===== BACKEND LOAD/SAVE =====
-async function loadInitialBackendFromFile() {
+async function loadBackend() {
   try {
-    const response = await fetch("payments.json");
-    if (!response.ok) throw new Error("Cannot load payments.json");
-    const data = await response.json();
-    return data;
-  } catch (e) {
-    console.error(e);
+    const response = await fetch("backend.json?v=" + Date.now());
+    const backend = await response.json();
+    return backend.recurringPayments; // NEW STRUCTURE
+  } catch (err) {
+    console.error("Error loading backend:", err);
     return [];
   }
 }
 
-function loadBackendFromLocalStorage() {
-  const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
+// =========================
+// Format date helper
+// =========================
 
-function saveBackendToLocalStorage(backend) {
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(backend));
-}
-
-// ===== PREDICTION LOGIC =====
-function predictNextDateForPayment(payment) {
-  const dates = payment.last_dates || [];
-  if (!dates.length) return null;
-
-  // If interval_days exists, use it; otherwise infer from last_dates
-  let interval = payment.interval_days;
-  if (!interval && dates.length >= 2) {
-    const intervals = [];
-    for (let i = 1; i < dates.length; i++) {
-      intervals.push(daysBetween(dates[i - 1], dates[i]));
-    }
-    interval = median(intervals);
-  }
-  if (!interval) return null;
-
-  const lastDate = parseISODate(dates[dates.length - 1]);
-  const nextDate = addDays(lastDate, interval);
-  return toISODateString(nextDate);
-}
-
-function buildUpcomingPayments(backend, todayISO, lookaheadDays = 4) {
-  const today = parseISODate(todayISO);
-  const cutoff = addDays(today, lookaheadDays);
-  const upcoming = [];
-
-  backend.forEach((p) => {
-    const nextDateISO = predictNextDateForPayment(p);
-    if (!nextDateISO) return;
-
-    const nextDate = parseISODate(nextDateISO);
-    if (nextDate >= today && nextDate <= cutoff) {
-      upcoming.push({
-        name: p.name,
-        amount: p.amount,
-        next_date: nextDateISO
-      });
-    }
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-CA", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
   });
-
-  upcoming.sort((a, b) => parseISODate(a.next_date) - parseISODate(b.next_date));
-  return upcoming;
 }
 
-function autoAdvanceBackend(backend, todayISO) {
-  const today = parseISODate(todayISO);
-  const updated = backend.map((p) => {
-    const nextDateISO = predictNextDateForPayment(p);
-    if (!nextDateISO) return p;
+// =========================
+// Calculate next date based on frequency
+// =========================
 
-    const nextDate = parseISODate(nextDateISO);
-    // If nextDate is in the past or today, treat it as occurred and advance
-    if (nextDate <= today) {
-      const newLastDates = [...(p.last_dates || []), nextDateISO];
-      // Keep only last 6 dates
-      while (newLastDates.length > 6) newLastDates.shift();
+function calculateNextDate(lastDate, frequency) {
+  const d = new Date(lastDate);
 
-      // Recalculate interval_days from newLastDates
-      let newInterval = p.interval_days;
-      if (newLastDates.length >= 2) {
-        const intervals = [];
-        for (let i = 1; i < newLastDates.length; i++) {
-          intervals.push(daysBetween(newLastDates[i - 1], newLastDates[i]));
-        }
-        const med = median(intervals);
-        if (med) newInterval = med;
-      }
+  switch (frequency) {
+    case "weekly":
+      d.setDate(d.getDate() + 7);
+      break;
 
-      return {
-        ...p,
-        last_dates: newLastDates,
-        interval_days: newInterval
-      };
-    }
-    return p;
-  });
+    case "bi-weekly":
+      d.setDate(d.getDate() + 14);
+      break;
 
-  return updated;
+    case "monthly":
+      d.setMonth(d.getMonth() + 1);
+      break;
+
+    case "quarterly":
+      d.setMonth(d.getMonth() + 3);
+      break;
+
+    case "semi-annual":
+      d.setMonth(d.getMonth() + 6);
+      break;
+  }
+
+  return d.toISOString().split("T")[0];
 }
 
-// ===== MAIN UI RENDER =====
-function renderMainScreen(backend) {
+// =========================
+// Days between two dates
+// =========================
+
+function daysBetween(dateStr) {
   const today = new Date();
-  const todayISO = toISODateString(today);
+  const target = new Date(dateStr);
+  const diff = target - today;
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
 
-  document.getElementById("today-date").textContent =
-    today.toLocaleDateString();
+// =========================
+// Render balance (placeholder)
+// =========================
 
-  // Auto-advance backend based on today
-  const advancedBackend = autoAdvanceBackend(backend, todayISO);
-  saveBackendToLocalStorage(advancedBackend);
+function updateBalance() {
+  const el = document.getElementById("balance-amount");
+  el.textContent = "$0.00"; // You can update this later
+}
 
-  const upcoming = buildUpcomingPayments(advancedBackend, todayISO, 4);
-  const total = upcoming.reduce((sum, p) => sum + p.amount, 0);
+// =========================
+// Render today's date (NO LABEL)
+// =========================
 
-  document.getElementById("balance-amount").textContent = formatCurrency(total);
+function updateTodayDate() {
+  const el = document.getElementById("today-date");
+  const today = new Date();
+  el.textContent = today.toLocaleDateString("en-CA", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+}
 
-  const listEl = document.getElementById("upcoming-list");
-  listEl.innerHTML = "";
+// =========================
+// Render upcoming payments (next 4 days)
+// =========================
 
-  if (!upcoming.length) {
-    const li = document.createElement("li");
-    li.textContent = "No payments detected in the next 4 days.";
-    listEl.appendChild(li);
-  } else {
-    upcoming.forEach((p) => {
+function renderUpcoming(payments) {
+  const list = document.getElementById("upcoming-list");
+  list.innerHTML = "";
+
+  const today = new Date();
+
+  // Sort by nextDate ascending
+  payments.sort((a, b) => new Date(a.nextDate) - new Date(b.nextDate));
+
+  let found = false;
+
+  payments.forEach(p => {
+    const days = daysBetween(p.nextDate);
+
+    if (days >= 0 && days <= 4) {
+      found = true;
+
       const li = document.createElement("li");
-      const dateStr = new Date(p.next_date + "T00:00:00").toLocaleDateString();
-      li.innerHTML =
-        `<span class="name">${dateStr} — ${p.name}</span>` +
-        `<span class="amount">${formatCurrency(p.amount)}</span>`;
-      listEl.appendChild(li);
-    });
-  }
-}
-
-// ===== ADMIN PANEL =====
-function showMainView() {
-  document.getElementById("main-view").style.display = "block";
-  document.getElementById("admin-view").classList.remove("active");
-}
-
-function showAdminView() {
-  document.getElementById("main-view").style.display = "none";
-  document.getElementById("admin-view").classList.add("active");
-}
-
-function renderBackendPreview(backend) {
-  const previewEl = document.getElementById("backend-preview");
-  if (!backend || !backend.length) {
-    previewEl.textContent = "No backend loaded yet.";
-    return;
-  }
-  previewEl.textContent = JSON.stringify(backend, null, 2);
-}
-
-// Simple CSV parser (assumes headers and comma-separated)
-function parseCSV(text) {
-  const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
-  if (!lines.length) return [];
-
-  const headers = lines[0].split(",");
-  const rows = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(",");
-    if (cols.length !== headers.length) continue;
-    const row = {};
-    headers.forEach((h, idx) => {
-      row[h.trim()] = cols[idx].trim();
-    });
-    rows.push(row);
-  }
-  return rows;
-}
-
-// Build backend from CSV transactions
-function buildBackendFromCSV(rows) {
-  // You’ll adapt these field names to your actual CSV:
-  // Assume headers: Date, Description, Amount, Type (DEBIT/CREDIT)
-  const map = new Map();
-
-  rows.forEach((r) => {
-    const desc = (r.Description || "").trim();
-    const amount = parseFloat(r.Amount || "0");
-    const type = (r.Type || "").toUpperCase();
-    const date = (r.Date || "").trim();
-
-    if (!desc || !date || isNaN(amount)) return;
-    if (type !== "DEBIT") return; // only outgoing payments
-
-    if (!map.has(desc)) {
-      map.set(desc, []);
+      li.innerHTML = `
+        <span class="name">${p.name}</span>
+        <span class="amount">$${p.amount.toFixed(2)}</span>
+        <br>
+        <span style="font-size:0.8rem;color:#777;">${formatDate(p.nextDate)}</span>
+      `;
+      list.appendChild(li);
     }
-    map.get(desc).push({ date, amount });
   });
 
-  const backend = [];
-
-  for (const [name, txs] of map.entries()) {
-    if (txs.length < 2) continue; // need at least 2 to detect recurring
-
-    // Sort by date
-    txs.sort((a, b) => parseISODate(a.date) - parseISODate(b.date));
-
-    const dates = txs.map((t) => t.date);
-    const amounts = txs.map((t) => t.amount);
-
-    const intervals = [];
-    for (let i = 1; i < dates.length; i++) {
-      intervals.push(daysBetween(dates[i - 1], dates[i]));
-    }
-    const intervalDays = median(intervals);
-    if (!intervalDays) continue;
-
-    // Use median amount
-    const sortedAmounts = [...amounts].sort((a, b) => a - b);
-    const mid = Math.floor(sortedAmounts.length / 2);
-    const medianAmount =
-      sortedAmounts.length % 2 === 0
-        ? (sortedAmounts[mid - 1] + sortedAmounts[mid]) / 2
-        : sortedAmounts[mid];
-
-    // Keep last up to 6 dates
-    const lastDates = dates.slice(-6);
-
-    backend.push({
-      name,
-      amount: medianAmount,
-      last_dates: lastDates,
-      interval_days: intervalDays
-    });
+  if (!found) {
+    list.innerHTML = `<li>No payments detected in the next 4 days.</li>`;
   }
-
-  return backend;
 }
 
-// ===== INIT =====
-document.addEventListener("DOMContentLoaded", async () => {
-  // Routing between main and admin
-  function handleHash() {
-    if (window.location.hash === "#admin") {
-      showAdminView();
-      const backend = loadBackendFromLocalStorage();
-      renderBackendPreview(backend || []);
-    } else {
-      showMainView();
-      const backendLocal = loadBackendFromLocalStorage();
-      if (backendLocal) {
-        renderMainScreen(backendLocal);
-      } else {
-        // First run: load from payments.json
-        loadInitialBackendFromFile().then((backendFile) => {
-          saveBackendToLocalStorage(backendFile);
-          renderMainScreen(backendFile);
-        });
-      }
-    }
-  }
+// =========================
+// MAIN INIT
+// =========================
 
-  window.addEventListener("hashchange", handleHash);
-  handleHash();
+async function init() {
+  updateBalance();
+  updateTodayDate();
 
-  // Admin: process CSV
-  const csvInput = document.getElementById("csv-input");
-  const processBtn = document.getElementById("process-csv-btn");
-  processBtn.addEventListener("click", () => {
-    if (!csvInput.files || !csvInput.files[0]) {
-      alert("Please select a CSV file first.");
-      return;
-    }
-    const file = csvInput.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target.result;
-      const rows = parseCSV(text);
-      const backend = buildBackendFromCSV(rows);
-      saveBackendToLocalStorage(backend);
-      renderBackendPreview(backend);
-      alert("Backend rebuilt from CSV.");
+  let payments = await loadBackend();
+
+  // Ensure nextDate exists (backend already has it, but just in case)
+  payments = payments.map(p => {
+    return {
+      ...p,
+      nextDate: p.nextDate || calculateNextDate(p.lastDate, p.frequency)
     };
-    reader.readAsText(file);
   });
 
-  // Admin: export backend
-  const exportBtn = document.getElementById("export-backend-btn");
-  exportBtn.addEventListener("click", () => {
-    const backend = loadBackendFromLocalStorage();
-    if (!backend) {
-      alert("No backend in local storage.");
-      return;
-    }
-    const blob = new Blob([JSON.stringify(backend, null, 2)], {
-      type: "application/json"
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "payments-backend.json";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  });
+  renderUpcoming(payments);
+}
 
-  // Admin: reset backend
-  const resetBtn = document.getElementById("reset-backend-btn");
-  resetBtn.addEventListener("click", () => {
-    if (!confirm("Clear backend from local storage?")) return;
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
-    document.getElementById("backend-preview").textContent =
-      "Backend cleared. It will reload from payments.json on next visit to main screen.";
-  });
-});
+init();
