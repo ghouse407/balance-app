@@ -1,62 +1,102 @@
-[
-  {
-    "name": "BNS MTGE DEPT",
-    "amount": 1891.66,
-    "last_dates": ["2026-05-25", "2026-06-08"],
-    "interval_days": 14
-  },
-  {
-    "name": "2600812RBC PYT",
-    "amount": 6606.41,
-    "last_dates": ["2026-05-05", "2026-06-03"],
-    "interval_days": 29
-  },
-  {
-    "name": "Insurance",
-    "amount": 287.72,
-    "last_dates": ["2026-05-25", "2026-06-08"],
-    "interval_days": 14
-  },
-  {
-    "name": "Hydro One",
-    "amount": 80.56,
-    "last_dates": ["2026-04-01", "2026-05-04"],
-    "interval_days": 30
-  },
-  {
-    "name": "Enbridge Gas",
-    "amount": 120.00,
-    "last_dates": ["2026-04-15", "2026-05-15"],
-    "interval_days": 30
-  },
-  {
-    "name": "Water Bill",
-    "amount": 60.00,
-    "last_dates": ["2026-03-10", "2026-05-10"],
-    "interval_days": 61
-  },
-  {
-    "name": "Property Tax",
-    "amount": 900.00,
-    "last_dates": ["2026-03-06", "2026-05-07"],
-    "interval_days": 62
-  },
-  {
-    "name": "Weekly Transfers",
-    "amount": 190.00,
-    "last_dates": ["2026-06-19", "2026-06-26"],
-    "interval_days": 7
-  },
-  {
-    "name": "P2P 400",
-    "amount": 400.00,
-    "last_dates": ["2026-05-01", "2026-06-01"],
-    "interval_days": 31
-  },
-  {
-    "name": "BNS PREAUTH PMT",
-    "amount": 382.56,
-    "last_dates": ["2026-05-03", "2026-06-03"],
-    "interval_days": 31
-  }
-]
+{
+  "recurringPayments": [
+    {
+      "name": "Scotia Mortgage",
+      "amount": 1891.66,
+      "frequency": "bi-weekly",
+      "lastDate": "2026-05-25",
+      "nextDate": "2026-06-08",
+      "category": "Mortgage",
+      "notes": "Formerly BNS MTGE DEPT"
+    },
+    {
+      "name": "RBC Mortgage",
+      "amount": 6606.41,
+      "frequency": "monthly",
+      "lastDate": "2026-05-05",
+      "nextDate": "2026-06-05",
+      "category": "Mortgage",
+      "notes": "Formerly RBC PYT"
+    },
+    {
+      "name": "Hydro One",
+      "amount": 80.56,
+      "frequency": "monthly",
+      "lastDate": "2026-05-04",
+      "nextDate": "2026-06-04",
+      "category": "Utilities"
+    },
+    {
+      "name": "Enbridge Gas",
+      "amount": 111.95,
+      "frequency": "monthly",
+      "lastDate": "2026-05-25",
+      "nextDate": "2026-06-25",
+      "category": "Utilities"
+    },
+    {
+      "name": "Scotia Home & Auto Insurance",
+      "amount": 196.83,
+      "frequency": "monthly",
+      "lastDate": "2026-05-07",
+      "nextDate": "2026-06-07",
+      "category": "Insurance"
+    },
+    {
+      "name": "Scotia Home & Auto Insurance",
+      "amount": 90.89,
+      "frequency": "monthly",
+      "lastDate": "2026-05-07",
+      "nextDate": "2026-06-07",
+      "category": "Insurance"
+    },
+    {
+      "name": "Bradford Property Tax",
+      "amount": 1895.40,
+      "frequency": "quarterly",
+      "lastDate": "2026-05-07",
+      "nextDate": "2026-08-07",
+      "category": "Property Tax"
+    },
+    {
+      "name": "Milton Property Tax",
+      "amount": 1214.51,
+      "frequency": "semi-annual",
+      "lastDate": "2026-03-06",
+      "nextDate": "2026-09-06",
+      "category": "Property Tax"
+    },
+    {
+      "name": "RRSP",
+      "amount": 65,
+      "frequency": "weekly",
+      "lastDate": "2026-05-28",
+      "nextDate": "2026-06-04",
+      "category": "Savings Transfer"
+    },
+    {
+      "name": "TFSA",
+      "amount": 100,
+      "frequency": "weekly",
+      "lastDate": "2026-05-28",
+      "nextDate": "2026-06-04",
+      "category": "Savings Transfer"
+    },
+    {
+      "name": "Crypto",
+      "amount": 25,
+      "frequency": "weekly",
+      "lastDate": "2026-05-28",
+      "nextDate": "2026-06-04",
+      "category": "Investment Transfer"
+    },
+    {
+      "name": "Shakira TFSA/RRSP",
+      "amount": 400,
+      "frequency": "monthly",
+      "lastDate": "2026-05-23",
+      "nextDate": "2026-06-23",
+      "category": "Transfer"
+    }
+  ]
+}
