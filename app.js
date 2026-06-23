@@ -6,7 +6,7 @@ async function loadBackend() {
   try {
     const response = await fetch("backend.json?v=" + Date.now());
     const backend = await response.json();
-    return backend.recurringPayments; // NEW STRUCTURE
+    return backend.recurringPayments;
   } catch (err) {
     console.error("Error loading backend:", err);
     return [];
@@ -27,35 +27,37 @@ function formatDate(dateStr) {
 }
 
 // =========================
-// Calculate next date based on frequency
+// Predict next date based on history
 // =========================
 
-function calculateNextDate(lastDate, frequency) {
-  const d = new Date(lastDate);
-
-  switch (frequency) {
-    case "weekly":
-      d.setDate(d.getDate() + 7);
-      break;
-
-    case "bi-weekly":
-      d.setDate(d.getDate() + 14);
-      break;
-
-    case "monthly":
-      d.setMonth(d.getMonth() + 1);
-      break;
-
-    case "quarterly":
-      d.setMonth(d.getMonth() + 3);
-      break;
-
-    case "semi-annual":
-      d.setMonth(d.getMonth() + 6);
-      break;
+function predictNextDate(historyDates) {
+  if (!historyDates || historyDates.length < 2) {
+    return null;
   }
 
-  return d.toISOString().split("T")[0];
+  // Convert to Date objects
+  const dates = historyDates.map(d => new Date(d)).sort((a, b) => a - b);
+
+  // Calculate gaps
+  const gaps = [];
+  for (let i = 1; i < dates.length; i++) {
+    const diff = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
+    gaps.push(Math.round(diff));
+  }
+
+  // Find most common gap (mode)
+  const freq = {};
+  gaps.forEach(g => freq[g] = (freq[g] || 0) + 1);
+
+  const mostCommonGap = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+  const gapDays = parseInt(mostCommonGap);
+
+  // Predict next date
+  const lastDate = dates[dates.length - 1];
+  const next = new Date(lastDate);
+  next.setDate(next.getDate() + gapDays);
+
+  return next.toISOString().split("T")[0];
 }
 
 // =========================
@@ -70,16 +72,7 @@ function daysBetween(dateStr) {
 }
 
 // =========================
-// Render balance (placeholder)
-// =========================
-
-function updateBalance() {
-  const el = document.getElementById("balance-amount");
-  el.textContent = "$0.00"; // You can update this later
-}
-
-// =========================
-// Render today's date (NO LABEL)
+// Render today's date
 // =========================
 
 function updateTodayDate() {
@@ -93,16 +86,14 @@ function updateTodayDate() {
 }
 
 // =========================
-// Render upcoming payments (next 4 days)
+// Render upcoming payments
 // =========================
 
 function renderUpcoming(payments) {
   const list = document.getElementById("upcoming-list");
   list.innerHTML = "";
 
-  const today = new Date();
-
-  // Sort by nextDate ascending
+  // Sort by predicted next date
   payments.sort((a, b) => new Date(a.nextDate) - new Date(b.nextDate));
 
   let found = false;
@@ -134,16 +125,16 @@ function renderUpcoming(payments) {
 // =========================
 
 async function init() {
-  updateBalance();
   updateTodayDate();
 
   let payments = await loadBackend();
 
-  // Ensure nextDate exists (backend already has it, but just in case)
+  // Predict next dates dynamically
   payments = payments.map(p => {
+    const next = predictNextDate(p.history || [p.lastDate]);
     return {
       ...p,
-      nextDate: p.nextDate || calculateNextDate(p.lastDate, p.frequency)
+      nextDate: next || p.nextDate
     };
   });
 
