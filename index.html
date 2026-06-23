@@ -202,22 +202,27 @@
       <a href="#admin">⚙️</a>
     </div>
 
-    <!-- MAIN VIEW -->
-    <div id="main-view">
-      <h1>Maintain Balance</h1>
-      <div class="balance" id="balance-amount">$0.00</div>
+<!-- MAIN VIEW -->
+<div id="main-view">
+  <h1>Maintain Balance</h1>
 
-      <!-- DATE (no label, just the date) -->
-      <div class="date" id="today-date"></div>
+  <!-- BALANCE (ID FIXED) -->
+  <div class="balance" id="total">$0.00</div>
 
-      <!-- SEPARATOR LINE -->
-      <div class="separator-line"></div>
+  <!-- DATE (ID FIXED) -->
+  <div class="date" id="today"></div>
 
-      <div class="section-title">Payments Due in Next 4 Days</div>
-      <ul id="upcoming-list">
-        <li>No payments detected in the next 4 days.</li>
-      </ul>
-    </div>
+  <!-- SEPARATOR LINE -->
+  <div class="separator-line"></div>
+
+  <div class="section-title">Payments Due in Next 4 Days</div>
+
+  <!-- UPCOMING LIST (already correct) -->
+  <ul id="upcoming-list">
+    <li>No payments detected in the next 4 days.</li>
+  </ul>
+</div>
+
 
     <!-- ADMIN VIEW -->
     <div id="admin-view" class="admin-panel">
