@@ -79,7 +79,7 @@ function daysBetween(dateStr) {
 }
 
 // =========================
-– Render today's date
+// Render today's date
 // =========================
 
 function updateTodayDate() {
