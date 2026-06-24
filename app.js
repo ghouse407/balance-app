@@ -1,7 +1,11 @@
+// app.js — final version (predicted-only, LOC split, seasonal utilities, updated totals)
+
 let currentPayments = [];
 let dayWindow = 4;
 
 const UTILITY_NAMES = ["Hydro One", "Enbridge Gas"];
+const LOC_NAMES = ["Scotia LOC Interest 1", "Scotia LOC Interest 2"];
+const PROPERTY_TAX_NAMES = ["Bradford Property Tax", "Milton Property Tax"];
 
 // ========== LOAD BACKEND ==========
 
@@ -11,7 +15,8 @@ async function loadBackend() {
 
   const res = await fetch("backend.json");
   const data = await res.json();
-  return normalize(data.recurringPayments || data);
+  const payments = Array.isArray(data.recurringPayments) ? data.recurringPayments : data;
+  return normalize(payments);
 }
 
 function normalize(payments) {
@@ -77,7 +82,7 @@ function predictNextDate(history) {
   return next.toISOString().split("T")[0];
 }
 
-// ========== AMOUNT PREDICTION ==========
+// ========== AMOUNT PREDICTION MODELS ==========
 
 // Seasonal prediction for utilities: average of same month
 function predictSeasonalAmount(history, nextDateStr) {
@@ -93,7 +98,7 @@ function predictSeasonalAmount(history, nextDateStr) {
   return Math.round(avg * 100) / 100;
 }
 
-// Linear + blended fallback
+// Generic trend fallback (simple regression blended with last)
 function predictTrendAmount(history) {
   const amounts = history.map(h => h.amount);
   const last = amounts[amounts.length - 1];
@@ -126,15 +131,60 @@ function predictTrendAmount(history) {
   return Math.round(blended * 100) / 100;
 }
 
-function predictNextAmount(payeeName, history, nextDateStr) {
-  const last = history[history.length - 1].amount;
+// Weighted recent trend for LOC
+function predictLocAmount(history) {
+  const n = history.length;
+  if (n === 0) return 0;
 
+  const last = history[n - 1].amount;
+  if (n === 1) return last;
+
+  const secondLast = history[n - 2].amount;
+  if (n === 2) {
+    const val = last * 0.7 + secondLast * 0.3;
+    return Math.round(val * 100) / 100;
+  }
+
+  const thirdLast = history[n - 3].amount;
+  const val = last * 0.6 + secondLast * 0.3 + thirdLast * 0.1;
+  return Math.round(val * 100) / 100;
+}
+
+// Property tax: average of last 2
+function predictPropertyTaxAmount(history) {
+  const n = history.length;
+  if (n === 0) return 0;
+  if (n === 1) return history[0].amount;
+
+  const last = history[n - 1].amount;
+  const secondLast = history[n - 2].amount;
+  const val = (last + secondLast) / 2;
+  return Math.round(val * 100) / 100;
+}
+
+// Constant payees: use last amount as "predicted"
+function predictConstantAmount(history) {
+  if (!history.length) return 0;
+  return history[history.length - 1].amount;
+}
+
+function predictNextAmount(payeeName, history, nextDateStr) {
   if (UTILITY_NAMES.includes(payeeName)) {
     const seasonal = predictSeasonalAmount(history, nextDateStr);
     if (seasonal !== null) return seasonal;
+    return predictTrendAmount(history);
   }
 
-  return predictTrendAmount(history);
+  if (LOC_NAMES.includes(payeeName)) {
+    return predictLocAmount(history);
+  }
+
+  if (PROPERTY_TAX_NAMES.includes(payeeName)) {
+    return predictPropertyTaxAmount(history);
+  }
+
+  // Insurance, RRSP, TFSA, Crypto, Shakira → treat as constant or simple trend
+  return predictConstantAmount(history);
 }
 
 // ========== BUILD UPCOMING ==========
@@ -147,13 +197,11 @@ function buildUpcoming(payments) {
       const nextDate = predictNextDate(p.history);
       if (!nextDate) return null;
 
-      const last = p.history[p.history.length - 1].amount;
       const predicted = predictNextAmount(p.name, p.history, nextDate);
 
       return {
         name: p.name,
         nextDate,
-        lastAmount: last,
         predictedAmount: predicted
       };
     })
@@ -182,32 +230,13 @@ function renderUpcoming(upcoming) {
 
       found = true;
 
-      const isUtility = UTILITY_NAMES.includes(p.name);
-      const variable =
-        Math.abs(p.predictedAmount - p.lastAmount) > 0.01;
-
-      let displayAmount;
-      let contribution;
-
-      if (isUtility) {
-        // Always use predicted for utilities
-        displayAmount = `$${p.predictedAmount.toFixed(2)}`;
-        contribution = p.predictedAmount;
-      } else if (variable) {
-        // Rule B for non-utilities
-        displayAmount = `$${p.lastAmount.toFixed(2)} ➝ $${p.predictedAmount.toFixed(2)}`;
-        contribution = p.predictedAmount;
-      } else {
-        displayAmount = `$${p.lastAmount.toFixed(2)}`;
-        contribution = p.lastAmount;
-      }
-
+      const contribution = p.predictedAmount;
       total += contribution;
 
       const li = document.createElement("li");
       li.innerHTML = `
         <span class="name">${p.name}</span>
-        <span class="amount">${displayAmount}</span><br>
+        <span class="amount">$${p.predictedAmount.toFixed(2)}</span><br>
         <span class="meta">${formatDate(p.nextDate)}</span>
       `;
       list.appendChild(li);
@@ -261,101 +290,3 @@ document.getElementById("back-btn").onclick = () => {
   document.getElementById("admin-screen").style.display = "none";
   document.getElementById("main-screen").style.display = "block";
 };
-
-// ========== CSV IMPORT (with Scotia LOC Interest mapping) ==========
-
-function mapCsvRowToPayee(type, desc, amountAbs) {
-  if (type === "AFT_OUT") {
-    if (desc.includes("BNS MTGE DEPT")) return "Scotia Mortgage";
-    if (desc.includes("RBC PYT")) return "RBC Mortgage";
-    if (desc.includes("Enbridge Gas")) return "Enbridge Gas";
-    if (desc.includes("Hydro One")) return "Hydro One";
-    if (desc.includes("SCOTIA H&A INS.")) {
-      if (Math.abs(amountAbs - 196.83) < 1) return "Scotia Home Insurance";
-      if (Math.abs(amountAbs - 90.89) < 1) return "Scotia Auto Insurance";
-    }
-    if (desc.includes("BNS PREAUTH PMT")) return "Scotia LOC Interest";
-  }
-
-  if (type === "TRFOUT") {
-    if (desc.toLowerCase().includes("rrsp") || Math.abs(amountAbs - 65) < 0.5)
-      return "RRSP";
-    if (desc.toLowerCase().includes("tfsa") || Math.abs(amountAbs - 100) < 0.5)
-      return "TFSA";
-    if (desc.toLowerCase().includes("crypto") || Math.abs(amountAbs - 25) < 0.5)
-      return "Crypto";
-  }
-
-  if (type === "P2P_SENT") return "Shakira TFSA/RRSP";
-
-  if (type === "OBP_OUT") {
-    if (desc.includes("BRADFORD WEST GWILLIMBURY")) return "Bradford Property Tax";
-    if (desc.includes("MILTON ONTARIO")) return "Milton Property Tax";
-  }
-
-  return null;
-}
-
-function mergeCsv(payments, entries) {
-  const byName = {};
-  payments.forEach(p => {
-    if (!byName[p.name]) byName[p.name] = p;
-  });
-
-  entries.forEach(e => {
-    let p = byName[e.name];
-    if (!p) {
-      p = { name: e.name, history: [] };
-      payments.push(p);
-      byName[e.name] = p;
-    }
-
-    const exists = p.history.some(
-      h => h.date === e.date && Math.abs(h.amount - e.amount) < 0.01
-    );
-    if (!exists) p.history.push({ date: e.date, amount: e.amount });
-
-    p.history.sort((a, b) => new Date(a.date) - new Date(b.date));
-  });
-
-  return payments;
-}
-
-document.getElementById("csv-input").addEventListener("change", async e => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const text = await file.text();
-  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
-  if (lines.length <= 1) return alert("CSV empty");
-
-  const header = lines[0].split(",");
-  const dateIdx = header.indexOf("date");
-  const typeIdx = header.indexOf("transaction");
-  const descIdx = header.indexOf("description");
-  const amountIdx = header.indexOf("amount");
-
-  const entries = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(",");
-    const date = cols[dateIdx].replace(/"/g, "");
-    const type = cols[typeIdx].replace(/"/g, "");
-    const desc = cols[descIdx].replace(/"/g, "");
-    const amt = parseFloat(cols[amountIdx]);
-
-    if (isNaN(amt) || amt >= 0) continue;
-
-    const amountAbs = Math.abs(amt);
-    const name = mapCsvRowToPayee(type, desc, amountAbs);
-    if (!name) continue;
-
-    entries.push({ name, date, amount: amountAbs });
-  }
-
-  currentPayments = mergeCsv(currentPayments, entries);
-  localStorage.setItem("backendData", JSON.stringify(currentPayments));
-
-  alert("CSV imported. Reloading...");
-  location.reload();
-});
