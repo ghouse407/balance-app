@@ -18,7 +18,7 @@ async function loadBackend() {
 // =========================
 
 function formatDate(dateStr) {
-  const d = new Date(dateStr);
+  const d = new Date(dateStr + "T00:00:00");
   return d.toLocaleDateString("en-CA", {
     year: "numeric",
     month: "short",
@@ -35,7 +35,15 @@ function predictNextDate(historyDates) {
     return null;
   }
 
-  const dates = historyDates.map(d => new Date(d)).sort((a, b) => a - b);
+  // Force consistent parsing across all browsers
+  const dates = historyDates
+    .map(d => new Date(d + "T00:00:00"))
+    .sort((a, b) => a - b);
+
+  // If ANY date is invalid → stop prediction
+  if (dates.some(d => isNaN(d))) {
+    return null;
+  }
 
   const gaps = [];
   for (let i = 1; i < dates.length; i++) {
@@ -61,8 +69,10 @@ function predictNextDate(historyDates) {
 // =========================
 
 function daysBetween(dateStr) {
+  if (!dateStr) return 9999; // Skip invalid dates
+
   const today = new Date();
-  const target = new Date(dateStr);
+  const target = new Date(dateStr + "T00:00:00");
   const diff = target - today;
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
@@ -93,7 +103,7 @@ function renderUpcoming(payments) {
   let found = false;
   let total = 0;
 
-  payments.sort((a, b) => new Date(a.nextDate) - new Date(b.nextDate));
+  payments.sort((a, b) => new Date(a.nextDate + "T00:00:00") - new Date(b.nextDate + "T00:00:00"));
 
   payments.forEach(p => {
     const days = daysBetween(p.nextDate);
@@ -141,7 +151,5 @@ async function init() {
 
   renderUpcoming(payments);
 }
-// =========================
-// BEFORE END
-// =========================
+
 init();
