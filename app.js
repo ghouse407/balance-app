@@ -4,10 +4,18 @@
 
 async function loadBackend() {
   try {
+    // Check if admin uploaded data
+    const stored = localStorage.getItem("backendData");
+    if (stored) {
+      // console.log("Using backend from localStorage");
+      return JSON.parse(stored);
+    }
+
     const response = await fetch("backend.json");
     const backend = await response.json();
-    console.log("STEP 1: Loaded backend.recurringPayments:", backend.recurringPayments);
+    // console.log("Loaded backend.json:", backend.recurringPayments);
     return backend.recurringPayments;
+
   } catch (err) {
     console.error("ERROR loading backend:", err);
     return [];
@@ -28,81 +36,53 @@ function formatDate(dateStr) {
 }
 
 // =========================
-// Predict next date based on history
+// Predict next date (future-safe)
 // =========================
 
 function predictNextDate(historyDates) {
-  console.log("STEP 2: Predicting next date for history:", historyDates);
+  // console.log("Predicting next date for:", historyDates);
 
   if (!historyDates || historyDates.length < 2) {
-    console.log("  -> Not enough history, returning null");
     return null;
   }
 
-  // Parse and sort dates safely
   const dates = historyDates
-    .map(function (d) {
-      const parsed = new Date(d + "T00:00:00Z");
-      console.log("  Parsed:", d, "=>", parsed.toISOString());
-      return parsed;
-    })
-    .filter(function (d) {
-      return !isNaN(d.getTime());
-    })
-    .sort(function (a, b) {
-      return a.getTime() - b.getTime();
-    });
+    .map(d => new Date(d + "T00:00:00Z"))
+    .filter(d => !isNaN(d.getTime()))
+    .sort((a, b) => a.getTime() - b.getTime());
 
-  if (dates.length < 2) {
-    console.log("  -> Not enough valid dates after parsing");
-    return null;
-  }
+  if (dates.length < 2) return null;
 
   // Calculate gaps
-  var gaps = [];
-  for (var i = 1; i < dates.length; i++) {
-    var diff = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
+  const gaps = [];
+  for (let i = 1; i < dates.length; i++) {
+    const diff = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
     gaps.push(Math.round(diff));
   }
 
-  console.log("  Gaps:", gaps);
+  // Find most common gap
+  const freq = {};
+  gaps.forEach(g => freq[g] = (freq[g] || 0) + 1);
 
-  // Frequency map
-  var freq = {};
-  gaps.forEach(function (g) {
-    freq[g] = (freq[g] || 0) + 1;
-  });
-
-  console.log("  Gap frequency:", freq);
-
-  // Most common gap
-  var entries = Object.entries(freq).sort(function (a, b) {
-    return b[1] - a[1];
-  });
-
-  var mostCommonGap = parseInt(entries[0][0], 10);
-  console.log("  Most common gap:", mostCommonGap);
+  const mostCommonGap = parseInt(
+    Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0],
+    10
+  );
 
   // Predict next date
-  var lastDate = dates[dates.length - 1];
-  var next = new Date(lastDate.getTime());
+  let next = new Date(dates[dates.length - 1].getTime());
   next.setUTCDate(next.getUTCDate() + mostCommonGap);
 
-  var nextDateStr = next.toISOString().split("T")[0];
-  console.log("  Initial predicted next date:", nextDateStr);
+  let nextDateStr = next.toISOString().split("T")[0];
 
-  // =========================
-  // FIX: Always push into the future
-  // =========================
-  var today = new Date();
+  // Ensure future date
+  const today = new Date();
   while (new Date(nextDateStr + "T00:00:00Z") < today) {
-    console.log("  Predicted date is in the past, adding gap again...");
     next.setUTCDate(next.getUTCDate() + mostCommonGap);
     nextDateStr = next.toISOString().split("T")[0];
   }
 
-  console.log("  FINAL future-safe next date:", nextDateStr);
-
+  // console.log("Final next date:", nextDateStr);
   return nextDateStr;
 }
 
@@ -111,26 +91,13 @@ function predictNextDate(historyDates) {
 // =========================
 
 function daysBetween(dateStr) {
-  if (!dateStr) {
-    console.log("STEP 3: daysBetween called with NULL date");
-    return 9999;
-  }
+  if (!dateStr) return 9999;
 
-  var today = new Date();
-  var target = new Date(dateStr + "T00:00:00Z");
+  const today = new Date();
+  const target = new Date(dateStr + "T00:00:00Z");
 
-  console.log("STEP 3: daysBetween:", {
-    dateStr: dateStr,
-    today: today.toISOString(),
-    target: target.toISOString()
-  });
-
-  var diff = target - today;
-  var days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-
-  console.log("  -> Days difference:", days);
-
-  return days;
+  const diff = target - today;
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
 // =========================
@@ -138,8 +105,8 @@ function daysBetween(dateStr) {
 // =========================
 
 function updateTodayDate() {
-  var el = document.getElementById("today");
-  var today = new Date();
+  const el = document.getElementById("today");
+  const today = new Date();
   el.textContent = today.toLocaleDateString("en-CA", {
     year: "numeric",
     month: "short",
@@ -148,49 +115,36 @@ function updateTodayDate() {
 }
 
 // =========================
-// Render upcoming payments + MINIMUM BALANCE
+// Render upcoming payments
 // =========================
 
 function renderUpcoming(payments) {
-  console.log("STEP 4: Rendering upcoming payments:", payments);
-
-  var list = document.getElementById("upcoming-list");
-  var totalEl = document.getElementById("total");
+  const list = document.getElementById("upcoming-list");
+  const totalEl = document.getElementById("total");
 
   list.innerHTML = "";
-  var found = false;
-  var total = 0;
+  let found = false;
+  let total = 0;
 
-  payments.sort(function (a, b) {
-    return new Date(a.nextDate + "T00:00:00Z") - new Date(b.nextDate + "T00:00:00Z");
-  });
+  payments.sort((a, b) =>
+    new Date(a.nextDate + "T00:00:00Z") - new Date(b.nextDate + "T00:00:00Z")
+  );
 
-  payments.forEach(function (p) {
-    var days = daysBetween(p.nextDate);
-
-    console.log("STEP 5: Payment check:", {
-      name: p.name,
-      nextDate: p.nextDate,
-      daysBetween: days
-    });
+  payments.forEach(p => {
+    const days = daysBetween(p.nextDate);
 
     if (days >= 0 && days <= 4) {
-      console.log("  -> INCLUDED in total");
       found = true;
       total += p.amount;
 
-      var li = document.createElement("li");
+      const li = document.createElement("li");
       li.innerHTML =
         '<span class="name">' + p.name + '</span>' +
         '<span class="amount">$' + p.amount.toFixed(2) + '</span><br>' +
         '<span style="font-size:0.8rem;color:#777;">' + formatDate(p.nextDate) + '</span>';
       list.appendChild(li);
-    } else {
-      console.log("  -> SKIPPED (not in 0-4 day window)");
     }
   });
-
-  console.log("STEP 6: Final total:", total);
 
   totalEl.textContent = "$" + total.toFixed(2);
 
@@ -207,12 +161,10 @@ function renderUpcoming(payments) {
 async function init() {
   updateTodayDate();
 
-  var payments = await loadBackend();
-  console.log("STEP 0: Raw payments loaded:", payments);
+  let payments = await loadBackend();
 
-  payments = payments.map(function (p) {
-    var next = predictNextDate(p.history);
-    console.log("STEP 2B: Final nextDate for", p.name, "=>", next);
+  payments = payments.map(p => {
+    const next = predictNextDate(p.history);
     return {
       name: p.name,
       amount: p.amount,
@@ -222,9 +174,67 @@ async function init() {
     };
   });
 
-  console.log("STEP 2C: Payments after prediction:", payments);
-
   renderUpcoming(payments);
 }
 
 init();
+
+// =========================
+// ADMIN PANEL UI
+// =========================
+
+document.getElementById("admin-btn").addEventListener("click", function () {
+  document.getElementById("admin-modal").style.display = "flex";
+});
+
+document.getElementById("close-admin").addEventListener("click", function () {
+  document.getElementById("admin-modal").style.display = "none";
+});
+
+// =========================
+// CSV UPLOAD HANDLER
+// =========================
+
+document.getElementById("csv-input").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function (event) {
+    const csvText = event.target.result;
+
+    const lines = csvText.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+
+    const newPayments = {};
+
+    for (let i = 1; i < lines.length; i++) {
+      const parts = lines[i].split(",");
+      if (parts.length < 3) continue;
+
+      const name = parts[0].trim();
+      const amount = parseFloat(parts[1].trim());
+      const date = parts[2].trim();
+
+      if (!newPayments[name]) {
+        newPayments[name] = {
+          name: name,
+          amount: amount,
+          category: "Imported",
+          history: []
+        };
+      }
+
+      newPayments[name].history.push(date);
+    }
+
+    const finalArray = Object.values(newPayments);
+
+    localStorage.setItem("backendData", JSON.stringify(finalArray));
+
+    alert("Transactions imported successfully. Reloading...");
+    location.reload();
+  };
+
+  reader.readAsText(file);
+});
