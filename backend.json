@@ -1,10 +1,46 @@
 {
   "recurringPayments": [
     {
+      "name": "Hydro One",
+      "amount": 80.56,
+      "history": [
+        { "date": "2025-06-02", "amount": 72.77 },
+        { "date": "2025-07-02", "amount": 70.30 },
+        { "date": "2025-08-05", "amount": 125.18 },
+        { "date": "2025-09-02", "amount": 158.30 },
+        { "date": "2025-10-02", "amount": 108.48 },
+        { "date": "2025-12-02", "amount": 80.24 },
+        { "date": "2025-12-30", "amount": 68.85 },
+        { "date": "2026-02-02", "amount": 87.77 },
+        { "date": "2026-03-02", "amount": 74.81 },
+        { "date": "2026-04-01", "amount": 75.96 },
+        { "date": "2026-05-04", "amount": 80.56 }
+      ]
+    },
+    {
+      "name": "Enbridge Gas",
+      "amount": 111.95,
+      "history": [
+        { "date": "2025-06-25", "amount": 59.20 },
+        { "date": "2025-07-28", "amount": 49.61 },
+        { "date": "2025-08-26", "amount": 32.23 },
+        { "date": "2025-09-25", "amount": 34.94 },
+        { "date": "2025-10-27", "amount": 30.22 },
+        { "date": "2025-11-25", "amount": 113.00 },
+        { "date": "2025-12-24", "amount": 69.86 },
+        { "date": "2026-01-26", "amount": 114.12 },
+        { "date": "2026-02-24", "amount": 235.60 },
+        { "date": "2026-03-24", "amount": 120.39 },
+        { "date": "2026-04-27", "amount": 185.00 },
+        { "date": "2026-05-25", "amount": 111.95 }
+      ]
+    },
+    {
       "name": "Scotia Mortgage",
       "amount": 1891.66,
-      "category": "Mortgage",
       "history": [
+        { "date": "2025-11-10", "amount": 1891.66 },
+        { "date": "2025-11-24", "amount": 1891.66 },
         { "date": "2025-12-08", "amount": 1891.66 },
         { "date": "2025-12-22", "amount": 1891.66 },
         { "date": "2026-01-05", "amount": 1891.66 },
@@ -22,7 +58,6 @@
     {
       "name": "RBC Mortgage",
       "amount": 6606.41,
-      "category": "Mortgage",
       "history": [
         { "date": "2025-12-03", "amount": 6606.41 },
         { "date": "2026-01-05", "amount": 6606.41 },
@@ -33,50 +68,23 @@
       ]
     },
     {
-      "name": "Hydro One",
-      "amount": 80.56,
-      "category": "Utilities",
-      "history": [
-        { "date": "2025-12-02", "amount": 80.56 },
-        { "date": "2025-12-30", "amount": 80.56 },
-        { "date": "2026-01-02", "amount": 80.56 },
-        { "date": "2026-02-02", "amount": 80.56 },
-        { "date": "2026-03-02", "amount": 80.56 },
-        { "date": "2026-04-01", "amount": 80.56 },
-        { "date": "2026-05-04", "amount": 80.56 }
-      ]
-    },
-    {
-      "name": "Enbridge Gas",
-      "amount": 111.95,
-      "category": "Utilities",
-      "history": [
-        { "date": "2025-12-24", "amount": 111.95 },
-        { "date": "2026-01-26", "amount": 111.95 },
-        { "date": "2026-02-24", "amount": 111.95 },
-        { "date": "2026-03-24", "amount": 111.95 },
-        { "date": "2026-04-27", "amount": 111.95 },
-        { "date": "2026-05-25", "amount": 111.95 }
-      ]
-    },
-    {
-      "name": "Scotia Home & Auto Insurance",
+      "name": "Scotia Home Insurance",
       "amount": 196.83,
-      "category": "Insurance",
       "history": [
-        { "date": "2025-12-08", "amount": 196.83 },
-        { "date": "2026-01-07", "amount": 196.83 },
-        { "date": "2026-02-09", "amount": 196.83 },
-        { "date": "2026-03-09", "amount": 196.83 },
-        { "date": "2026-04-07", "amount": 196.83 },
-        { "date": "2026-05-07", "amount": 196.83 }
+        { "date": "2025-11-21", "amount": 90.63 },
+        { "date": "2025-12-04", "amount": 392.62 },
+        { "date": "2026-01-05", "amount": 370.22 },
+        { "date": "2026-02-03", "amount": 382.56 },
+        { "date": "2026-03-06", "amount": 382.56 },
+        { "date": "2026-04-06", "amount": 345.54 },
+        { "date": "2026-05-05", "amount": 382.56 }
       ]
     },
     {
-      "name": "Scotia Home & Auto Insurance",
+      "name": "Scotia Auto Insurance",
       "amount": 90.89,
-      "category": "Insurance",
       "history": [
+        { "date": "2025-11-07", "amount": 90.89 },
         { "date": "2025-12-08", "amount": 90.89 },
         { "date": "2026-01-07", "amount": 90.89 },
         { "date": "2026-02-09", "amount": 90.89 },
@@ -88,45 +96,26 @@
     {
       "name": "Bradford Property Tax",
       "amount": 1895.40,
-      "category": "Property Tax",
       "history": [
-        { "date": "2026-03-06", "amount": 1895.40 },
+        { "date": "2025-07-07", "amount": 1946.64 },
+        { "date": "2025-09-25", "amount": 1921.00 },
+        { "date": "2026-03-06", "amount": 1896.44 },
         { "date": "2026-05-07", "amount": 1895.40 }
       ]
     },
     {
       "name": "Milton Property Tax",
       "amount": 1214.51,
-      "category": "Property Tax",
       "history": [
+        { "date": "2025-07-07", "amount": 1300.00 },
+        { "date": "2025-09-25", "amount": 1281.81 },
         { "date": "2026-03-06", "amount": 1214.51 }
       ]
     },
     {
       "name": "RRSP",
       "amount": 65,
-      "category": "Savings Transfer",
       "history": [
-        { "date": "2025-12-04", "amount": 65 },
-        { "date": "2025-12-11", "amount": 65 },
-        { "date": "2025-12-18", "amount": 65 },
-        { "date": "2025-12-25", "amount": 65 },
-        { "date": "2026-01-01", "amount": 65 },
-        { "date": "2026-01-08", "amount": 65 },
-        { "date": "2026-01-15", "amount": 65 },
-        { "date": "2026-01-22", "amount": 65 },
-        { "date": "2026-01-29", "amount": 65 },
-        { "date": "2026-02-05", "amount": 65 },
-        { "date": "2026-02-12", "amount": 65 },
-        { "date": "2026-02-19", "amount": 65 },
-        { "date": "2026-02-26", "amount": 65 },
-        { "date": "2026-03-05", "amount": 65 },
-        { "date": "2026-03-12", "amount": 65 },
-        { "date": "2026-03-19", "amount": 65 },
-        { "date": "2026-03-26", "amount": 65 },
-        { "date": "2026-04-02", "amount": 65 },
-        { "date": "2026-04-09", "amount": 65 },
-        { "date": "2026-04-16", "amount": 65 },
         { "date": "2026-04-23", "amount": 65 },
         { "date": "2026-04-30", "amount": 65 },
         { "date": "2026-05-07", "amount": 65 },
@@ -138,28 +127,7 @@
     {
       "name": "TFSA",
       "amount": 100,
-      "category": "Savings Transfer",
       "history": [
-        { "date": "2025-12-04", "amount": 100 },
-        { "date": "2025-12-11", "amount": 100 },
-        { "date": "2025-12-18", "amount": 100 },
-        { "date": "2025-12-25", "amount": 100 },
-        { "date": "2026-01-01", "amount": 100 },
-        { "date": "2026-01-08", "amount": 100 },
-        { "date": "2026-01-15", "amount": 100 },
-        { "date": "2026-01-22", "amount": 100 },
-        { "date": "2026-01-29", "amount": 100 },
-        { "date": "2026-02-05", "amount": 100 },
-        { "date": "2026-02-12", "amount": 100 },
-        { "date": "2026-02-19", "amount": 100 },
-        { "date": "2026-02-26", "amount": 100 },
-        { "date": "2026-03-05", "amount": 100 },
-        { "date": "2026-03-12", "amount": 100 },
-        { "date": "2026-03-19", "amount": 100 },
-        { "date": "2026-03-26", "amount": 100 },
-        { "date": "2026-04-02", "amount": 100 },
-        { "date": "2026-04-09", "amount": 100 },
-        { "date": "2026-04-16", "amount": 100 },
         { "date": "2026-04-23", "amount": 100 },
         { "date": "2026-04-30", "amount": 100 },
         { "date": "2026-05-07", "amount": 100 },
@@ -171,28 +139,7 @@
     {
       "name": "Crypto",
       "amount": 25,
-      "category": "Investment Transfer",
       "history": [
-        { "date": "2025-12-04", "amount": 25 },
-        { "date": "2025-12-11", "amount": 25 },
-        { "date": "2025-12-18", "amount": 25 },
-        { "date": "2025-12-25", "amount": 25 },
-        { "date": "2026-01-01", "amount": 25 },
-        { "date": "2026-01-08", "amount": 25 },
-        { "date": "2026-01-15", "amount": 25 },
-        { "date": "2026-01-22", "amount": 25 },
-        { "date": "2026-01-29", "amount": 25 },
-        { "date": "2026-02-05", "amount": 25 },
-        { "date": "2026-02-12", "amount": 25 },
-        { "date": "2026-02-19", "amount": 25 },
-        { "date": "2026-02-26", "amount": 25 },
-        { "date": "2026-03-05", "amount": 25 },
-        { "date": "2026-03-12", "amount": 25 },
-        { "date": "2026-03-19", "amount": 25 },
-        { "date": "2026-03-26", "amount": 25 },
-        { "date": "2026-04-02", "amount": 25 },
-        { "date": "2026-04-09", "amount": 25 },
-        { "date": "2026-04-16", "amount": 25 },
         { "date": "2026-04-23", "amount": 25 },
         { "date": "2026-04-30", "amount": 25 },
         { "date": "2026-05-07", "amount": 25 },
@@ -204,9 +151,10 @@
     {
       "name": "Shakira TFSA/RRSP",
       "amount": 400,
-      "category": "Transfer",
       "history": [
-        { "date": "2026-03-01", "amount": 400 },
+        { "date": "2025-08-03", "amount": 400 },
+        { "date": "2025-08-21", "amount": 400 },
+        { "date": "2026-01-26", "amount": 400 },
         { "date": "2026-05-23", "amount": 400 }
       ]
     }
