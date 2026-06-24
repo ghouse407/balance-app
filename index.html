@@ -1,158 +1,237 @@
+@@ -1,191 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Maintain Balance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
+    /* LIGHT MODE */
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      transition: background 0.3s, color 0.3s;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      color: #000000;
     }
 
-    :root {
-      --bg: #ffffff;
-      --text: #000000;
-      --card: #f2f2f2;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #121212;
-        --text: #ffffff;
-        --card: #1e1e1e;
-      }
-    }
-
-    header {
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
       padding: 20px;
+    }
+
+    h1 {
       text-align: center;
-      font-size: 22px;
+      margin-top: 40px;
+      margin-bottom: 10px;
+      font-size: 24px;
       font-weight: bold;
     }
 
-    #today {
+    .balance {
+      font-size: 48px;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 5px;
+      color: #000000;
+    }
+
+    .date {
+      text-align: center;
+      margin-top: 5px;
+      margin-bottom: 20px;
       font-size: 14px;
-      opacity: 0.7;
+      color: #444444;
     }
 
-    .toggle-container {
-      display: flex;
-      justify-content: center;
-      margin: 15px 0;
-      gap: 10px;
+    .separator-line {
+      width: 200px;
+      height: 1px;
+      background: #000000;
+      margin: 10px auto 20px;
     }
 
-    .toggle-button {
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: 1px solid #ccc;
-      cursor: pointer;
-      background: transparent;
-      color: var(--text);
-      transition: 0.2s;
-    }
-
-    .toggle-button.active {
-      background-color: white;
-      color: black;
-      border: 1px solid #999;
+    .section-title {
+      font-size: 16px;
       font-weight: bold;
+      margin-bottom: 10px;
     }
 
     ul {
       list-style: none;
-      padding: 0 20px;
+      padding: 0;
+      margin: 0;
     }
 
     li {
-      background: var(--card);
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 8px;
+      padding: 10px 0;
+      border-bottom: 1px solid #cccccc;
+      font-size: 14px;
     }
 
     .name {
       font-weight: bold;
-      font-size: 16px;
     }
 
     .amount {
       float: right;
       font-weight: bold;
+      color: #000000;
     }
 
     .meta {
-      font-size: 12px;
-      opacity: 0.7;
+      font-size: 0.8rem;
+      color: #777;
+      display: block;
+      margin-top: 2px;
     }
 
-    #total-container {
-      text-align: center;
-      margin: 20px 0;
-      font-size: 20px;
-      font-weight: bold;
+    /* DARK MODE */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #000000;
+        color: #ffffff;
+      }
+
+      .container {
+        background: #000000;
+      }
+
+      h1 {
+        color: #ffffff;
+      }
+
+      .balance {
+        color: #ffffff;
+      }
+
+      .date {
+        color: #cccccc;
+      }
+
+      .separator-line {
+        background: #ffffff;
+      }
+
+      li {
+        border-bottom: 1px solid #444444;
+      }
+
+      .amount {
+        color: #ffffff;
+      }
+
+      .meta {
+        color: #aaaaaa;
+      }
+      body { background: #000000; color: #ffffff; }
+      .balance { color: #ffffff; }
+      .date { color: #cccccc; }
+      .separator-line { background: #ffffff; }
+      li { border-bottom: 1px solid #444444; }
+      .amount { color: #ffffff; }
+      .meta { color: #aaaaaa; }
     }
 
+    /* ADMIN BUTTON */
     #admin-btn {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 10px 14px;
-      border-radius: 8px;
-      background: #444;
-      color: white;
+      top: 15px;
+      right: 15px;
+      font-size: 22px;
       cursor: pointer;
+      user-select: none;
     }
 
+    /* ADMIN SCREEN */
     #admin-screen {
       display: none;
       padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
     }
 
-    #back-btn {
-      padding: 10px 14px;
-      background: #444;
-      color: white;
+    #admin-screen h2 {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    /* SEGMENTED TOGGLE */
+    #day-toggle {
+      width: 220px;
+      margin: 10px auto 20px;
+      display: flex;
+      border: 1px solid #888;
       border-radius: 8px;
+      overflow: hidden;
+      font-size: 14px;
+    }
+
+    .segment {
+      flex: 1;
+      text-align: center;
+      padding: 6px 0;
       cursor: pointer;
-      margin-bottom: 20px;
-      display: inline-block;
+      background: #e6e6e6;
+      color: #000;
+    }
+
+    .segment.active {
+      background: #007aff;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #day-toggle { border-color: #666; }
+      .segment { background: #333; color: #ccc; }
+      .segment.active { background: #0a84ff; color: #fff; }
     }
   </style>
 </head>
 
 <body>
+
+  <!-- ADMIN BUTTON -->
+  <div id="admin-btn">⚙️</div>
+
   <!-- MAIN SCREEN -->
-  <div id="main-screen">
-    <header>
-      Maintain Balance
-      <div id="today"></div>
-    </header>
+  <div id="main-screen" class="container">
 
-    <div class="toggle-container">
-      <div id="toggle-4" class="toggle-button active">4 Days</div>
-      <div id="toggle-30" class="toggle-button">30 Days</div>
+    <h1>Maintain Balance</h1>
+
+    <!-- SEGMENTED TOGGLE -->
+    <div id="day-toggle">
+      <div id="toggle-4" class="segment active">4 Days</div>
+      <div id="toggle-30" class="segment">30 Days</div>
     </div>
 
-    <ul id="upcoming-list"></ul>
+    <div class="balance" id="total">$0.00</div>
+    <div class="date" id="today"></div>
 
-    <div id="total-container">
-      Total: <span id="total">$0.00</span>
-    </div>
+    <div class="separator-line"></div>
 
-    <div id="admin-btn">Admin</div>
+    <div class="section-title">Payments Due in Next 4 Days</div>
+    <div class="section-title">Payments Due</div>
+
+    <ul id="upcoming-list">
+      <li>No payments detected in the next 4 days.</li>
+      <li>No payments detected.</li>
+    </ul>
+
   </div>
 
   <!-- ADMIN SCREEN -->
   <div id="admin-screen">
-    <div id="back-btn">← Back</div>
     <h2>Admin Panel</h2>
-    <p>Future admin tools will appear here.</p>
+
+    <p>Upload transactions CSV</p>
+    <input type="file" id="csv-input" accept=".csv" />
+
+    <br><br>
+    <button id="back-btn">Back</button>
   </div>
 
   <script src="app.js"></script>
