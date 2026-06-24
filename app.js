@@ -39,27 +39,35 @@ function predictNextDate(historyDates) {
     return null;
   }
 
+  // Parse and sort dates safely
   const dates = historyDates
     .map(function (d) {
       const parsed = new Date(d + "T00:00:00Z");
-      console.log("  Parsed date:", d, "=>", parsed.toISOString());
+      console.log("  Parsed:", d, "=>", parsed.toISOString());
       return parsed;
     })
-    .sort(function (a, b) { return a - b; });
+    .filter(function (d) {
+      return !isNaN(d.getTime());
+    })
+    .sort(function (a, b) {
+      return a.getTime() - b.getTime();
+    });
 
-  if (dates.some(function (d) { return isNaN(d.getTime()); })) {
-    console.log("  -> Invalid date found, returning null");
+  if (dates.length < 2) {
+    console.log("  -> Not enough valid dates after parsing");
     return null;
   }
 
+  // Calculate gaps
   var gaps = [];
   for (var i = 1; i < dates.length; i++) {
     var diff = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
     gaps.push(Math.round(diff));
   }
 
-  console.log("  Gaps between dates:", gaps);
+  console.log("  Gaps:", gaps);
 
+  // Frequency map
   var freq = {};
   gaps.forEach(function (g) {
     freq[g] = (freq[g] || 0) + 1;
@@ -67,6 +75,7 @@ function predictNextDate(historyDates) {
 
   console.log("  Gap frequency:", freq);
 
+  // Most common gap
   var entries = Object.entries(freq).sort(function (a, b) {
     return b[1] - a[1];
   });
@@ -74,12 +83,25 @@ function predictNextDate(historyDates) {
   var mostCommonGap = parseInt(entries[0][0], 10);
   console.log("  Most common gap:", mostCommonGap);
 
+  // Predict next date
   var lastDate = dates[dates.length - 1];
   var next = new Date(lastDate.getTime());
   next.setUTCDate(next.getUTCDate() + mostCommonGap);
 
   var nextDateStr = next.toISOString().split("T")[0];
-  console.log("  Predicted next date:", nextDateStr);
+  console.log("  Initial predicted next date:", nextDateStr);
+
+  // =========================
+  // FIX: Always push into the future
+  // =========================
+  var today = new Date();
+  while (new Date(nextDateStr + "T00:00:00Z") < today) {
+    console.log("  Predicted date is in the past, adding gap again...");
+    next.setUTCDate(next.getUTCDate() + mostCommonGap);
+    nextDateStr = next.toISOString().split("T")[0];
+  }
+
+  console.log("  FINAL future-safe next date:", nextDateStr);
 
   return nextDateStr;
 }
