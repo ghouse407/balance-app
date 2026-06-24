@@ -35,13 +35,13 @@ function predictNextDate(historyDates) {
     return null;
   }
 
-  // Force consistent parsing across all browsers
+  // Force consistent UTC parsing
   const dates = historyDates
-    .map(d => new Date(d + "T00:00:00"))
+    .map(d => new Date(d + "T00:00:00Z"))
     .sort((a, b) => a - b);
 
   // If ANY date is invalid → stop prediction
-  if (dates.some(d => isNaN(d))) {
+  if (dates.some(d => isNaN(d.getTime()))) {
     return null;
   }
 
@@ -58,8 +58,8 @@ function predictNextDate(historyDates) {
   const gapDays = parseInt(mostCommonGap);
 
   const lastDate = dates[dates.length - 1];
-  const next = new Date(lastDate);
-  next.setDate(next.getDate() + gapDays);
+  const next = new Date(lastDate.getTime());
+  next.setUTCDate(next.getUTCDate() + gapDays);
 
   return next.toISOString().split("T")[0];
 }
@@ -69,10 +69,10 @@ function predictNextDate(historyDates) {
 // =========================
 
 function daysBetween(dateStr) {
-  if (!dateStr) return 9999; // Skip invalid dates
+  if (!dateStr) return 9999;
 
   const today = new Date();
-  const target = new Date(dateStr + "T00:00:00");
+  const target = new Date(dateStr + "T00:00:00Z");
   const diff = target - today;
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
@@ -103,7 +103,9 @@ function renderUpcoming(payments) {
   let found = false;
   let total = 0;
 
-  payments.sort((a, b) => new Date(a.nextDate + "T00:00:00") - new Date(b.nextDate + "T00:00:00"));
+  payments.sort((a, b) =>
+    new Date(a.nextDate + "T00:00:00Z") - new Date(b.nextDate + "T00:00:00Z")
+  );
 
   payments.forEach(p => {
     const days = daysBetween(p.nextDate);
@@ -123,7 +125,6 @@ function renderUpcoming(payments) {
     }
   });
 
-  // Update minimum balance required
   totalEl.textContent = "$" + total.toFixed(2);
 
   if (!found) {
