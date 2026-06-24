@@ -18,7 +18,7 @@ async function loadBackend() {
 // =========================
 
 function formatDate(dateStr) {
-  const d = new Date(dateStr + "T00:00:00");
+  const d = new Date(dateStr + "T00:00:00Z");
   return d.toLocaleDateString("en-CA", {
     year: "numeric",
     month: "short",
