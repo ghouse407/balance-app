@@ -35,12 +35,10 @@ function predictNextDate(historyDates) {
     return null;
   }
 
-  // Force consistent UTC parsing
   const dates = historyDates
     .map(d => new Date(d + "T00:00:00Z"))
     .sort((a, b) => a - b);
 
-  // If ANY date is invalid → stop prediction
   if (dates.some(d => isNaN(d.getTime()))) {
     return null;
   }
@@ -52,14 +50,17 @@ function predictNextDate(historyDates) {
   }
 
   const freq = {};
-  gaps.forEach(g => freq[g] = (freq[g] || 0) + 1);
+  gaps.forEach(g => {
+    freq[g] = (freq[g] || 0) + 1;
+  });
 
-  const mostCommonGap = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
-  const gapDays = parseInt(mostCommonGap);
+  const mostCommonGap = parseInt(
+    Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0]
+  );
 
   const lastDate = dates[dates.length - 1];
   const next = new Date(lastDate.getTime());
-  next.setUTCDate(next.getUTCDate() + gapDays);
+  next.setUTCDate(next.getUTCDate() + mostCommonGap);
 
   return next.toISOString().split("T")[0];
 }
@@ -78,7 +79,7 @@ function daysBetween(dateStr) {
 }
 
 // =========================
-// Render today's date
+– Render today's date
 // =========================
 
 function updateTodayDate() {
@@ -103,8 +104,10 @@ function renderUpcoming(payments) {
   let found = false;
   let total = 0;
 
-  payments.sort((a, b) =>
-    new Date(a.nextDate + "T00:00:00Z") - new Date(b.nextDate + "T00:00:00Z")
+  payments.sort(
+    (a, b) =>
+      new Date(a.nextDate + "T00:00:00Z") -
+      new Date(b.nextDate + "T00:00:00Z")
   );
 
   payments.forEach(p => {
