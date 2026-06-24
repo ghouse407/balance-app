@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
-    /* LIGHT MODE (default) */
+    /* LIGHT MODE */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -80,7 +80,7 @@
       color: #000000;
     }
 
-    /* DARK MODE (system controlled) */
+    /* DARK MODE */
     @media (prefers-color-scheme: dark) {
       body {
         background: #000000;
@@ -115,10 +115,54 @@
         color: #ffffff;
       }
     }
+
+    /* ADMIN BUTTON */
+    #admin-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      font-size: 22px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* ADMIN MODAL */
+    #admin-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
+
+    #admin-box {
+      background: #ffffff;
+      padding: 20px;
+      width: 300px;
+      border-radius: 8px;
+      text-align: center;
+    }
   </style>
 </head>
 
 <body>
+
+  <!-- ADMIN BUTTON -->
+  <div id="admin-btn">⚙️</div>
+
+  <!-- ADMIN MODAL -->
+  <div id="admin-modal">
+    <div id="admin-box">
+      <h3>Admin Panel</h3>
+      <p>Upload transactions CSV</p>
+      <input type="file" id="csv-input" accept=".csv" />
+      <br><br>
+      <button id="close-admin">Close</button>
+    </div>
+  </div>
+
   <div class="container">
 
     <h1>Maintain Balance</h1>
