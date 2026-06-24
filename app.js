@@ -4,7 +4,6 @@
 
 async function loadBackend() {
   try {
-    // Check if admin uploaded data
     const stored = localStorage.getItem("backendData");
     if (stored) {
       // console.log("Using backend from localStorage");
@@ -53,14 +52,12 @@ function predictNextDate(historyDates) {
 
   if (dates.length < 2) return null;
 
-  // Calculate gaps
   const gaps = [];
   for (let i = 1; i < dates.length; i++) {
     const diff = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
     gaps.push(Math.round(diff));
   }
 
-  // Find most common gap
   const freq = {};
   gaps.forEach(g => freq[g] = (freq[g] || 0) + 1);
 
@@ -69,27 +66,21 @@ function predictNextDate(historyDates) {
     10
   );
 
-  // Predict next date
   let next = new Date(dates[dates.length - 1].getTime());
   next.setUTCDate(next.getUTCDate() + mostCommonGap);
 
   let nextDateStr = next.toISOString().split("T")[0];
 
-  // Ensure future date
   const today = new Date();
   while (new Date(nextDateStr + "T00:00:00Z") < today) {
     next.setUTCDate(next.getUTCDate() + mostCommonGap);
     nextDateStr = next.toISOString().split("T")[0];
   }
 
-  // console.log("Final next date:", nextDateStr);
   return nextDateStr;
 }
 
 // =========================
-// Days between two dates
-// =========================
-
 function daysBetween(dateStr) {
   if (!dateStr) return 9999;
 
@@ -100,8 +91,6 @@ function daysBetween(dateStr) {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
-// =========================
-// Render today's date
 // =========================
 
 function updateTodayDate() {
@@ -114,8 +103,6 @@ function updateTodayDate() {
   });
 }
 
-// =========================
-// Render upcoming payments
 // =========================
 
 function renderUpcoming(payments) {
@@ -180,15 +167,17 @@ async function init() {
 init();
 
 // =========================
-// ADMIN PANEL UI
+// ADMIN SCREEN SWITCHING
 // =========================
 
 document.getElementById("admin-btn").addEventListener("click", function () {
-  document.getElementById("admin-modal").style.display = "flex";
+  document.getElementById("main-screen").style.display = "none";
+  document.getElementById("admin-screen").style.display = "block";
 });
 
-document.getElementById("close-admin").addEventListener("click", function () {
-  document.getElementById("admin-modal").style.display = "none";
+document.getElementById("back-btn").addEventListener("click", function () {
+  document.getElementById("admin-screen").style.display = "none";
+  document.getElementById("main-screen").style.display = "block";
 });
 
 // =========================
