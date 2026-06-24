@@ -1,9 +1,9 @@
 let currentPayments = [];
 let dayWindow = 4;
 
-// =========================
-// LOAD BACKEND + NORMALIZE
-// =========================
+const UTILITY_NAMES = ["Hydro One", "Enbridge Gas"];
+
+// ========== LOAD BACKEND ==========
 
 async function loadBackend() {
   const stored = localStorage.getItem("backendData");
@@ -17,19 +17,13 @@ async function loadBackend() {
 function normalize(payments) {
   return payments.map(p => ({
     name: p.name,
-    amount: p.amount,
-    category: p.category || "Imported",
-    history: (p.history || []).map(h =>
-      typeof h === "string"
-        ? { date: h, amount: p.amount }
-        : { date: h.date, amount: h.amount ?? p.amount }
-    )
+    history: (p.history || [])
+      .map(h => ({ date: h.date, amount: h.amount }))
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
   }));
 }
 
-// =========================
-// DATE HELPERS
-// =========================
+// ========== DATE HELPERS ==========
 
 function formatDate(d) {
   return new Date(d + "T00:00:00Z").toLocaleDateString("en-CA", {
@@ -54,9 +48,7 @@ function updateToday() {
     });
 }
 
-// =========================
-// PREDICT NEXT DATE
-// =========================
+// ========== NEXT DATE PREDICTION ==========
 
 function predictNextDate(history) {
   if (history.length < 2) return null;
@@ -85,11 +77,24 @@ function predictNextDate(history) {
   return next.toISOString().split("T")[0];
 }
 
-// =========================
-// PREDICT NEXT AMOUNT (D3)
-// =========================
+// ========== AMOUNT PREDICTION ==========
 
-function predictNextAmount(history) {
+// Seasonal prediction for utilities: average of same month
+function predictSeasonalAmount(history, nextDateStr) {
+  const nextMonth = new Date(nextDateStr + "T00:00:00Z").getUTCMonth(); // 0-11
+  const sameMonthAmounts = history
+    .filter(h => new Date(h.date + "T00:00:00Z").getUTCMonth() === nextMonth)
+    .map(h => h.amount);
+
+  if (sameMonthAmounts.length === 0) return null;
+
+  const avg =
+    sameMonthAmounts.reduce((a, b) => a + b, 0) / sameMonthAmounts.length;
+  return Math.round(avg * 100) / 100;
+}
+
+// Linear + blended fallback
+function predictTrendAmount(history) {
   const amounts = history.map(h => h.amount);
   const last = amounts[amounts.length - 1];
 
@@ -121,18 +126,29 @@ function predictNextAmount(history) {
   return Math.round(blended * 100) / 100;
 }
 
-// =========================
-// BUILD UPCOMING
-// =========================
+function predictNextAmount(payeeName, history, nextDateStr) {
+  const last = history[history.length - 1].amount;
+
+  if (UTILITY_NAMES.includes(payeeName)) {
+    const seasonal = predictSeasonalAmount(history, nextDateStr);
+    if (seasonal !== null) return seasonal;
+  }
+
+  return predictTrendAmount(history);
+}
+
+// ========== BUILD UPCOMING ==========
 
 function buildUpcoming(payments) {
   return payments
     .map(p => {
+      if (!p.history || p.history.length === 0) return null;
+
       const nextDate = predictNextDate(p.history);
       if (!nextDate) return null;
 
       const last = p.history[p.history.length - 1].amount;
-      const predicted = predictNextAmount(p.history);
+      const predicted = predictNextAmount(p.name, p.history, nextDate);
 
       return {
         name: p.name,
@@ -144,9 +160,7 @@ function buildUpcoming(payments) {
     .filter(Boolean);
 }
 
-// =========================
-// RENDER
-// =========================
+// ========== RENDER ==========
 
 function renderUpcoming(upcoming) {
   const list = document.getElementById("upcoming-list");
@@ -168,14 +182,27 @@ function renderUpcoming(upcoming) {
 
       found = true;
 
+      const isUtility = UTILITY_NAMES.includes(p.name);
       const variable =
         Math.abs(p.predictedAmount - p.lastAmount) > 0.01;
 
-      const displayAmount = variable
-        ? `$${p.lastAmount.toFixed(2)} ➝ $${p.predictedAmount.toFixed(2)}`
-        : `$${p.lastAmount.toFixed(2)}`;
+      let displayAmount;
+      let contribution;
 
-      total += variable ? p.predictedAmount : p.lastAmount;
+      if (isUtility) {
+        // Always use predicted for utilities
+        displayAmount = `$${p.predictedAmount.toFixed(2)}`;
+        contribution = p.predictedAmount;
+      } else if (variable) {
+        // Rule B for non-utilities
+        displayAmount = `$${p.lastAmount.toFixed(2)} ➝ $${p.predictedAmount.toFixed(2)}`;
+        contribution = p.predictedAmount;
+      } else {
+        displayAmount = `$${p.lastAmount.toFixed(2)}`;
+        contribution = p.lastAmount;
+      }
+
+      total += contribution;
 
       const li = document.createElement("li");
       li.innerHTML = `
@@ -194,9 +221,7 @@ function renderUpcoming(upcoming) {
   totalEl.textContent = "$" + total.toFixed(2);
 }
 
-// =========================
-// INIT
-// =========================
+// ========== INIT ==========
 
 async function init() {
   updateToday();
@@ -206,9 +231,7 @@ async function init() {
 
 init();
 
-// =========================
-// TOGGLE HANDLERS
-// =========================
+// ========== TOGGLE HANDLERS ==========
 
 function updateToggleUI() {
   document.getElementById("toggle-4").classList.toggle("active", dayWindow === 4);
@@ -227,9 +250,7 @@ document.getElementById("toggle-30").onclick = () => {
   renderUpcoming(buildUpcoming(currentPayments));
 };
 
-// =========================
-// ADMIN SCREEN
-// =========================
+// ========== ADMIN SCREEN ==========
 
 document.getElementById("admin-btn").onclick = () => {
   document.getElementById("main-screen").style.display = "none";
@@ -241,25 +262,36 @@ document.getElementById("back-btn").onclick = () => {
   document.getElementById("main-screen").style.display = "block";
 };
 
-// =========================
-// CSV IMPORT
-// =========================
+// ========== CSV IMPORT (with Scotia LOC Interest mapping) ==========
 
 function mapCsvRowToPayee(type, desc, amountAbs) {
   if (type === "AFT_OUT") {
     if (desc.includes("BNS MTGE DEPT")) return "Scotia Mortgage";
-    if (desc.includes("2600740RBC PYT")) return "RBC Mortgage";
+    if (desc.includes("RBC PYT")) return "RBC Mortgage";
     if (desc.includes("Enbridge Gas")) return "Enbridge Gas";
-    if (desc.includes("BNS PREAUTH PMT")) return "Scotia Home & Auto Insurance";
+    if (desc.includes("Hydro One")) return "Hydro One";
+    if (desc.includes("SCOTIA H&A INS.")) {
+      if (Math.abs(amountAbs - 196.83) < 1) return "Scotia Home Insurance";
+      if (Math.abs(amountAbs - 90.89) < 1) return "Scotia Auto Insurance";
+    }
+    if (desc.includes("BNS PREAUTH PMT")) return "Scotia LOC Interest";
   }
 
   if (type === "TRFOUT") {
-    if (Math.abs(amountAbs - 65) < 0.5) return "RRSP";
-    if (Math.abs(amountAbs - 100) < 0.5) return "TFSA";
-    if (Math.abs(amountAbs - 25) < 0.5) return "Crypto";
+    if (desc.toLowerCase().includes("rrsp") || Math.abs(amountAbs - 65) < 0.5)
+      return "RRSP";
+    if (desc.toLowerCase().includes("tfsa") || Math.abs(amountAbs - 100) < 0.5)
+      return "TFSA";
+    if (desc.toLowerCase().includes("crypto") || Math.abs(amountAbs - 25) < 0.5)
+      return "Crypto";
   }
 
   if (type === "P2P_SENT") return "Shakira TFSA/RRSP";
+
+  if (type === "OBP_OUT") {
+    if (desc.includes("BRADFORD WEST GWILLIMBURY")) return "Bradford Property Tax";
+    if (desc.includes("MILTON ONTARIO")) return "Milton Property Tax";
+  }
 
   return null;
 }
@@ -267,31 +299,23 @@ function mapCsvRowToPayee(type, desc, amountAbs) {
 function mergeCsv(payments, entries) {
   const byName = {};
   payments.forEach(p => {
-    if (!byName[p.name]) byName[p.name] = [];
-    byName[p.name].push(p);
+    if (!byName[p.name]) byName[p.name] = p;
   });
 
   entries.forEach(e => {
-    const matches = byName[e.name];
-
-    if (!matches) {
-      const newP = {
-        name: e.name,
-        amount: e.amount,
-        category: "Imported",
-        history: [{ date: e.date, amount: e.amount }]
-      };
-      payments.push(newP);
-      byName[e.name] = [newP];
-      return;
+    let p = byName[e.name];
+    if (!p) {
+      p = { name: e.name, history: [] };
+      payments.push(p);
+      byName[e.name] = p;
     }
 
-    matches.forEach(p => {
-      const exists = p.history.some(
-        h => h.date === e.date && Math.abs(h.amount - e.amount) < 0.01
-      );
-      if (!exists) p.history.push({ date: e.date, amount: e.amount });
-    });
+    const exists = p.history.some(
+      h => h.date === e.date && Math.abs(h.amount - e.amount) < 0.01
+    );
+    if (!exists) p.history.push({ date: e.date, amount: e.amount });
+
+    p.history.sort((a, b) => new Date(a.date) - new Date(b.date));
   });
 
   return payments;
