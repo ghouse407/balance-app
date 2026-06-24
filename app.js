@@ -72,7 +72,7 @@ function daysBetween(dateStr) {
 // =========================
 
 function updateTodayDate() {
-  const el = document.getElementById("today");   // FIXED
+  const el = document.getElementById("today");
   const today = new Date();
   el.textContent = today.toLocaleDateString("en-CA", {
     year: "numeric",
@@ -82,22 +82,25 @@ function updateTodayDate() {
 }
 
 // =========================
-// Render upcoming payments
+// Render upcoming payments + MINIMUM BALANCE
 // =========================
 
 function renderUpcoming(payments) {
   const list = document.getElementById("upcoming-list");
+  const totalEl = document.getElementById("total");
+
   list.innerHTML = "";
+  let found = false;
+  let total = 0;
 
   payments.sort((a, b) => new Date(a.nextDate) - new Date(b.nextDate));
-
-  let found = false;
 
   payments.forEach(p => {
     const days = daysBetween(p.nextDate);
 
     if (days >= 0 && days <= 4) {
       found = true;
+      total += p.amount;
 
       const li = document.createElement("li");
       li.innerHTML = `
@@ -110,8 +113,12 @@ function renderUpcoming(payments) {
     }
   });
 
+  // Update minimum balance required
+  totalEl.textContent = "$" + total.toFixed(2);
+
   if (!found) {
     list.innerHTML = `<li>No payments detected in the next 4 days.</li>`;
+    totalEl.textContent = "$0.00";
   }
 }
 
@@ -125,10 +132,10 @@ async function init() {
   let payments = await loadBackend();
 
   payments = payments.map(p => {
-    const next = predictNextDate(p.history || [p.lastDate]);
+    const next = predictNextDate(p.history);
     return {
       ...p,
-      nextDate: next || p.nextDate
+      nextDate: next
     };
   });
 
