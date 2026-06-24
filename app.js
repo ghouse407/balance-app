@@ -4,7 +4,7 @@
 
 async function loadBackend() {
   try {
-    const response = await fetch("backend.json?v=" + Date.now());
+    const response = await fetch("backend.json");
     const backend = await response.json();
     return backend.recurringPayments;
   } catch (err) {
