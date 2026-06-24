@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
-    /* LIGHT MODE */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -89,42 +88,13 @@
 
     /* DARK MODE */
     @media (prefers-color-scheme: dark) {
-      body {
-        background: #000000;
-        color: #ffffff;
-      }
-
-      .container {
-        background: #000000;
-      }
-
-      h1 {
-        color: #ffffff;
-      }
-
-      .balance {
-        color: #ffffff;
-      }
-
-      .date {
-        color: #cccccc;
-      }
-
-      .separator-line {
-        background: #ffffff;
-      }
-
-      li {
-        border-bottom: 1px solid #444444;
-      }
-
-      .amount {
-        color: #ffffff;
-      }
-
-      .meta {
-        color: #aaaaaa;
-      }
+      body { background: #000000; color: #ffffff; }
+      .balance { color: #ffffff; }
+      .date { color: #cccccc; }
+      .separator-line { background: #ffffff; }
+      li { border-bottom: 1px solid #444444; }
+      .amount { color: #ffffff; }
+      .meta { color: #aaaaaa; }
     }
 
     /* ADMIN BUTTON */
@@ -149,33 +119,68 @@
       margin-top: 40px;
       text-align: center;
     }
+
+    /* SEGMENTED TOGGLE */
+    #day-toggle {
+      width: 220px;
+      margin: 10px auto 20px;
+      display: flex;
+      border: 1px solid #888;
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 14px;
+    }
+
+    .segment {
+      flex: 1;
+      text-align: center;
+      padding: 6px 0;
+      cursor: pointer;
+      background: #e6e6e6;
+      color: #000;
+    }
+
+    .segment.active {
+      background: #007aff;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #day-toggle { border-color: #666; }
+      .segment { background: #333; color: #ccc; }
+      .segment.active { background: #0a84ff; color: #fff; }
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- ADMIN BUTTON -->
   <div id="admin-btn">⚙️</div>
 
-  <!-- MAIN SCREEN -->
   <div id="main-screen" class="container">
 
     <h1>Maintain Balance</h1>
+
+    <!-- SEGMENTED TOGGLE -->
+    <div id="day-toggle">
+      <div id="toggle-4" class="segment active">4 Days</div>
+      <div id="toggle-30" class="segment">30 Days</div>
+    </div>
 
     <div class="balance" id="total">$0.00</div>
     <div class="date" id="today"></div>
 
     <div class="separator-line"></div>
 
-    <div class="section-title">Payments Due in Next 4 Days</div>
+    <div class="section-title">Payments Due</div>
 
     <ul id="upcoming-list">
-      <li>No payments detected in the next 4 days.</li>
+      <li>No payments detected.</li>
     </ul>
 
   </div>
 
-  <!-- ADMIN SCREEN -->
   <div id="admin-screen">
     <h2>Admin Panel</h2>
 
